@@ -140,7 +140,7 @@ export default function Hero() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {skills.map((skill: any, index: number) => {
+                {heroData.skills?.map((skill: any, index: number) => {
                   const IconComponent = skillIcons[skill.name];
 
                   return (

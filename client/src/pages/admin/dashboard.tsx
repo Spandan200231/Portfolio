@@ -689,17 +689,34 @@ export default function AdminDashboard() {
                     <CardDescription>Your displayed skills and expertise</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-3">
-                      {["Figma", "HTML & CSS", "Adobe XD", "Prototyping", "Wireframing", "Photoshop", "Premiere Pro", "InDesign"].map((skill) => (
-                        <div key={skill} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="grid grid-cols-1 gap-3">
+                      {heroContentData?.content?.skills?.map((skill: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                           <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium">{skill}</span>
+                            <span className="text-sm font-medium">{skill.name}</span>
                           </div>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              const updatedSkills = heroContentData.content.skills.filter((_: any, i: number) => i !== index);
+                              updateContentMutation.mutate({
+                                section: 'hero',
+                                content: {
+                                  ...heroContentData.content,
+                                  skills: updatedSkills
+                                }
+                              });
+                            }}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                      ))}
+                      )) || (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No skills added yet. Add your first skill using the form on the right.
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -722,22 +739,56 @@ export default function AdminDashboard() {
                     </div>
 
                     <div>
-                      <Label htmlFor="skill-category">Category</Label>
-                      <Select>
+                      <Label htmlFor="skill-category">Available Icons</Label>
+                      <Select value={newSkill.icon} onValueChange={(value) => setNewSkill({ ...newSkill, icon: value })}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder="Select an icon (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="design">Design Tools</SelectItem>
-                          <SelectItem value="development">Development</SelectItem>
-                          <SelectItem value="creative">Creative</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          {availableSkills.map((skill) => (
+                            <SelectItem key={skill.name} value={skill.name}>
+                              {skill.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <Button className="w-full">
-                      <Plus className="h-4 w-4 mr-2" />
+                    <Button 
+                      className="w-full"
+                      onClick={() => {
+                        if (!newSkill.name.trim()) {
+                          toast({
+                            title: "Skill name required",
+                            description: "Please enter a skill name",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+
+                        const currentSkills = heroContentData?.content?.skills || [];
+                        const newSkillObj = {
+                          name: newSkill.name.trim(),
+                          icon: newSkill.icon || null
+                        };
+
+                        updateContentMutation.mutate({
+                          section: 'hero',
+                          content: {
+                            ...heroContentData.content,
+                            skills: [...currentSkills, newSkillObj]
+                          }
+                        });
+
+                        setNewSkill({ name: "", icon: "" });
+                      }}
+                      disabled={updateContentMutation.isPending}
+                    >
+                      {updateContentMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
                       Add Skill
                     </Button>
                   </CardContent>
