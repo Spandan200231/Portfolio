@@ -23,7 +23,10 @@ import {
   FileText,
   Briefcase,
   Upload,
-  X
+  X,
+  Image,
+  ExternalLink,
+  Star
 } from "lucide-react";
 import {
   Command,
@@ -118,6 +121,8 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("hero");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [portfolioImage, setPortfolioImage] = useState<File | null>(null);
+  const [portfolioImagePreview, setPortfolioImagePreview] = useState<string>("");
 
   // Fetch hero content
   const { data: heroData, isLoading: heroLoading } = useQuery({
@@ -132,6 +137,11 @@ export default function AdminDashboard() {
   // Fetch social content
   const { data: socialData, isLoading: socialLoading } = useQuery({
     queryKey: ["/api/content/social"],
+  });
+
+  // Fetch portfolio items
+  const { data: portfolioItems = [], isLoading: portfolioLoading } = useQuery({
+    queryKey: ["/api/portfolio"],
   });
 
   // Hero content mutation
@@ -234,6 +244,102 @@ export default function AdminDashboard() {
     },
   });
 
+  // Portfolio image upload mutation
+  const uploadPortfolioImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const formData = new FormData();
+      formData.append("image", file);
+      
+      const response = await fetch("/api/upload/portfolio-image", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      
+      if (!response.ok) throw new Error("Failed to upload image");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Portfolio image uploaded successfully!" });
+      setPortfolioImagePreview(data.imageUrl);
+      setPortfolioImage(null);
+    },
+    onError: () => {
+      toast({ title: "Failed to upload portfolio image", variant: "destructive" });
+    },
+  });
+
+  // Portfolio mutations
+  const createPortfolioMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const response = await fetch("/api/portfolio", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to create portfolio item");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      toast({ title: "Portfolio item created successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Failed to create portfolio item", variant: "destructive" });
+    },
+  });
+
+  const updatePortfolioMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const response = await fetch(`/api/portfolio/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to update portfolio item");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      toast({ title: "Portfolio item updated successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update portfolio item", variant: "destructive" });
+    },
+  });
+
+  const deletePortfolioMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const response = await fetch(`/api/portfolio/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to delete portfolio item");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      toast({ title: "Portfolio item deleted successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete portfolio item", variant: "destructive" });
+    },
+  });
+
   const handleHeroSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -292,6 +398,56 @@ export default function AdminDashboard() {
     updateSocialMutation.mutate(content);
   };
 
+  const handlePortfolioSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const portfolioData = {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      imageUrl: portfolioImagePreview || formData.get("imageUrl"),
+      projectUrl: formData.get("projectUrl"),
+      category: formData.get("category"),
+      tags: formData.get("tags") ? (formData.get("tags") as string).split(",").map(tag => tag.trim()) : [],
+      featured: formData.get("featured") === "on",
+    };
+    createPortfolioMutation.mutate(portfolioData);
+    (e.target as HTMLFormElement).reset();
+    setPortfolioImagePreview("");
+  };
+
+  const handlePortfolioImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPortfolioImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPortfolioImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePortfolioImageUpload = () => {
+    if (portfolioImage) {
+      uploadPortfolioImageMutation.mutate(portfolioImage);
+    }
+  };
+
+  const removePortfolioImage = () => {
+    setPortfolioImage(null);
+    setPortfolioImagePreview("");
+  };
+
+  const handlePortfolioUpdate = (id: number, updates: any) => {
+    updatePortfolioMutation.mutate({ id, data: updates });
+  };
+
+  const handlePortfolioDelete = (id: number) => {
+    if (confirm("Are you sure you want to delete this portfolio item?")) {
+      deletePortfolioMutation.mutate(id);
+    }
+  };
+
   const addSkill = (skillName: string) => {
     if (!selectedSkills.includes(skillName)) {
       setSelectedSkills([...selectedSkills, skillName]);
@@ -322,7 +478,7 @@ export default function AdminDashboard() {
     }
   }, [heroData]);
 
-  if (heroLoading || contactLoading || socialLoading) {
+  if (heroLoading || contactLoading || socialLoading || portfolioLoading) {
     return (
       <div className="container mx-auto p-6">
         <div className="space-y-6">
@@ -385,6 +541,18 @@ export default function AdminDashboard() {
               <span>Social Links</span>
             </button>
 
+            <button
+              onClick={() => setActiveSection("portfolio")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "portfolio" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <Briefcase className="h-4 w-4" />
+              <span>Portfolio</span>
+            </button>
+
             <div className="border-t border-border my-4"></div>
 
             <button
@@ -418,11 +586,13 @@ export default function AdminDashboard() {
               {activeSection === "hero" && "Hero Section"}
               {activeSection === "contact" && "Contact Information"}
               {activeSection === "social" && "Social Media Links"}
+              {activeSection === "portfolio" && "Portfolio Management"}
             </h1>
             <p className="text-contrast-secondary mt-2">
               {activeSection === "hero" && "Manage your personal information and skills"}
               {activeSection === "contact" && "Update your contact details"}
               {activeSection === "social" && "Configure your social media presence"}
+              {activeSection === "portfolio" && "Manage your portfolio items and featured work"}
             </p>
           </div>
 
@@ -660,6 +830,233 @@ export default function AdminDashboard() {
               </form>
             </CardContent>
             </Card>
+          )}
+
+          {activeSection === "portfolio" && (
+            <div className="space-y-6">
+              {/* Add New Portfolio Item */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add New Portfolio Item</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handlePortfolioSubmit} className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="portfolio-title">Title</Label>
+                        <Input
+                          id="portfolio-title"
+                          name="title"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="portfolio-category">Category</Label>
+                        <Input
+                          id="portfolio-category"
+                          name="category"
+                          placeholder="e.g., UI/UX Design, Web Development"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="portfolio-description">Description</Label>
+                      <Textarea
+                        id="portfolio-description"
+                        name="description"
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <Label>Portfolio Image</Label>
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-4">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePortfolioImageSelect}
+                            className="flex-1"
+                          />
+                          {portfolioImage && (
+                            <Button
+                              type="button"
+                              onClick={handlePortfolioImageUpload}
+                              disabled={uploadPortfolioImageMutation.isPending}
+                              className="flex items-center space-x-2"
+                            >
+                              <Upload className="h-4 w-4" />
+                              <span>{uploadPortfolioImageMutation.isPending ? "Uploading..." : "Upload"}</span>
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {portfolioImagePreview && (
+                          <div className="relative inline-block">
+                            <img
+                              src={portfolioImagePreview}
+                              alt="Portfolio preview"
+                              className="w-32 h-24 object-cover rounded-lg border-2 border-border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                              onClick={removePortfolioImage}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                        
+                        <div>
+                          <Label htmlFor="portfolio-imageUrl">Or Image URL</Label>
+                          <Input
+                            id="portfolio-imageUrl"
+                            name="imageUrl"
+                            type="url"
+                            placeholder="https://example.com/image.jpg"
+                            value={portfolioImagePreview}
+                            onChange={(e) => setPortfolioImagePreview(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="portfolio-projectUrl">Project URL</Label>
+                      <Input
+                        id="portfolio-projectUrl"
+                        name="projectUrl"
+                        type="url"
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="portfolio-tags">Tags (comma-separated)</Label>
+                      <Input
+                        id="portfolio-tags"
+                        name="tags"
+                        placeholder="React, TypeScript, UI Design"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="portfolio-featured"
+                        name="featured"
+                        className="rounded"
+                      />
+                      <Label htmlFor="portfolio-featured">Featured Item</Label>
+                    </div>
+                    <Button type="submit" disabled={createPortfolioMutation.isPending}>
+                      {createPortfolioMutation.isPending ? "Creating..." : "Create Portfolio Item"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Portfolio Items List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Portfolio Items ({portfolioItems.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {portfolioLoading ? (
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, index) => (
+                        <div key={index} className="flex items-center space-x-4">
+                          <Skeleton className="h-16 w-16 rounded" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : portfolioItems.length === 0 ? (
+                    <div className="text-center py-8 text-contrast-secondary">
+                      <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No portfolio items yet. Add your first project above!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {portfolioItems.map((item: any) => (
+                        <div key={item.id} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="h-16 w-16 object-cover rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-semibold text-contrast flex items-center gap-2">
+                                  {item.title}
+                                  {item.featured && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      <Star className="h-3 w-3 mr-1" />
+                                      Featured
+                                    </Badge>
+                                  )}
+                                  {item.behanceId && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Behance
+                                    </Badge>
+                                  )}
+                                </h3>
+                                <p className="text-sm text-contrast-secondary">{item.description}</p>
+                                {item.category && (
+                                  <Badge variant="outline" className="mt-1 text-xs">
+                                    {item.category}
+                                  </Badge>
+                                )}
+                                {item.tags && item.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {item.tags.map((tag: string, index: number) => (
+                                      <Badge key={index} variant="secondary" className="text-xs">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex space-x-2">
+                                {item.projectUrl && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => window.open(item.projectUrl, "_blank")}
+                                  >
+                                    <ExternalLink className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handlePortfolioUpdate(item.id, { featured: !item.featured })}
+                                >
+                                  <Star className={`h-4 w-4 ${item.featured ? "fill-current" : ""}`} />
+                                </Button>
+                                {!item.behanceId && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handlePortfolioDelete(item.id)}
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
       </div>
