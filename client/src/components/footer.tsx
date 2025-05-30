@@ -41,9 +41,14 @@ export default function Footer() {
           {/* Brand & Description */}
           <div>
             <h3 className="text-xl font-semibold mb-4">{miscContent.heroTitle}</h3>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-300 leading-relaxed mb-3">
               {miscContent.heroSubtitle}
             </p>
+            {miscContent.heroTagline && (
+              <p className="text-gray-400 text-sm italic leading-relaxed">
+                {miscContent.heroTagline}
+              </p>
+            )}
           </div>
 
           {/* Quick Links */}

@@ -53,16 +53,9 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/">
-            <div className="flex flex-col">
-              <button className="font-semibold text-xl text-contrast hover:text-accent transition-colors text-left">
-                Spandan Majumder
-              </button>
-              {miscData?.content?.heroTagline && (
-                <span className="text-xs text-contrast-secondary leading-tight max-w-xs hidden sm:block">
-                  {miscData.content.heroTagline}
-                </span>
-              )}
-            </div>
+            <button className="font-semibold text-xl text-contrast hover:text-accent transition-colors">
+              Spandan Majumder
+            </button>
           </Link>
 
           {/* Desktop Navigation */}
