@@ -613,6 +613,15 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
+                    <div>
+                      <Label htmlFor="about-response-time">Response Time</Label>
+                      <Input
+                        id="about-response-time"
+                        defaultValue={contactContent?.content?.responseTime || "Within 24 hours"}
+                        placeholder="e.g., Within 24 hours, 1-2 business days"
+                      />
+                    </div>
+
                     <Button 
                       onClick={async () => {
                         const name = (document.getElementById('about-name') as HTMLInputElement).value;
@@ -620,6 +629,7 @@ export default function AdminDashboard() {
                         const description = (document.getElementById('about-description') as HTMLTextAreaElement).value;
                         const email = (document.getElementById('about-email') as HTMLInputElement).value;
                         const location = (document.getElementById('about-location') as HTMLInputElement).value;
+                        const responseTime = (document.getElementById('about-response-time') as HTMLInputElement).value;
 
                         try {
                           // Update hero content
@@ -633,13 +643,14 @@ export default function AdminDashboard() {
                             }
                           });
 
-                          // Update contact content with new email and location
+                          // Update contact content with new email, location and response time
                           await updateContentMutation.mutateAsync({
                             section: 'contact',
                             content: {
                               ...contactContent?.content,
                               email,
-                              location
+                              location,
+                              responseTime
                             }
                           });
 
