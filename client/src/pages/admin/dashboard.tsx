@@ -908,18 +908,6 @@ export default function AdminDashboard() {
                             </Button>
                           </div>
                         )}
-                        
-                        <div>
-                          <Label htmlFor="portfolio-imageUrl">Or Image URL</Label>
-                          <Input
-                            id="portfolio-imageUrl"
-                            name="imageUrl"
-                            type="url"
-                            placeholder="https://example.com/image.jpg"
-                            value={portfolioImagePreview}
-                            onChange={(e) => setPortfolioImagePreview(e.target.value)}
-                          />
-                        </div>
                       </div>
                     </div>
                     <div>
