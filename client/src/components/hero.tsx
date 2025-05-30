@@ -268,8 +268,8 @@ export default function Hero() {
           <div className="relative animate-fade-in-up">
             <div className="relative">
               <img
-                src="https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"
-                alt="Modern UI/UX designer workspace with multiple monitors and design tools"
+                src={heroData.imageUrl || "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"}
+                alt={heroData.imageUrl ? `${heroData.name} - Hero Image` : "Modern UI/UX designer workspace with multiple monitors and design tools"}
                 className="rounded-2xl shadow-2xl w-full object-cover h-96 lg:h-[500px]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>

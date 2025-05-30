@@ -463,6 +463,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Hero image upload
+  app.post("/api/upload/hero-image", authenticateToken, upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      const filename = `hero-${Date.now()}-${req.file.originalname}`;
+      const filepath = path.join("uploads", filename);
+
+      // Process image with Sharp
+      if (req.file.mimetype.startsWith("image/")) {
+        await sharp(req.file.path)
+          .resize(1200, 800, { fit: "cover", withoutEnlargement: true })
+          .jpeg({ quality: 85 })
+          .toFile(filepath);
+        fs.unlinkSync(req.file.path);
+      } else {
+        return res.status(400).json({ message: "Only image files are allowed" });
+      }
+
+      const imageUrl = `/api/uploads/${filename}`;
+      res.json({ imageUrl, filename });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to upload image" });
+    }
+  });
+
   // File serving for uploads
   app.get("/api/uploads/:filename", (req, res) => {
     const filename = req.params.filename;

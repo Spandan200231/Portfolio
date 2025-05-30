@@ -21,7 +21,9 @@ import {
   LogOut,
   Home,
   FileText,
-  Briefcase
+  Briefcase,
+  Upload,
+  X
 } from "lucide-react";
 import {
   Command,
@@ -114,6 +116,8 @@ export default function AdminDashboard() {
   const [skillSearch, setSkillSearch] = useState("");
   const [openSkillPopover, setOpenSkillPopover] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   // Fetch hero content
   const { data: heroData, isLoading: heroLoading } = useQuery({
@@ -202,6 +206,34 @@ export default function AdminDashboard() {
     },
   });
 
+  // Image upload mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const formData = new FormData();
+      formData.append("image", file);
+      
+      const response = await fetch("/api/upload/hero-image", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      
+      if (!response.ok) throw new Error("Failed to upload image");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Image uploaded successfully!" });
+      setImagePreview(data.imageUrl);
+      setSelectedImage(null);
+    },
+    onError: () => {
+      toast({ title: "Failed to upload image", variant: "destructive" });
+    },
+  });
+
   const handleHeroSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -209,8 +241,32 @@ export default function AdminDashboard() {
       name: formData.get("name"),
       introduction: formData.get("introduction"),
       skills: selectedSkills.map(skill => ({ name: skill })),
+      imageUrl: imagePreview || heroData?.content?.imageUrl || "",
     };
     updateHeroMutation.mutate(content);
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = () => {
+    if (selectedImage) {
+      uploadImageMutation.mutate(selectedImage);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview("");
   };
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -260,6 +316,9 @@ export default function AdminDashboard() {
   React.useEffect(() => {
     if (heroData?.content?.skills) {
       setSelectedSkills(heroData.content.skills.map((skill: any) => skill.name));
+    }
+    if (heroData?.content?.imageUrl) {
+      setImagePreview(heroData.content.imageUrl);
     }
   }, [heroData]);
 
@@ -392,6 +451,50 @@ export default function AdminDashboard() {
                   required
                 />
               </div>
+              <div>
+                <Label>Hero Image</Label>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="flex-1"
+                    />
+                    {selectedImage && (
+                      <Button
+                        type="button"
+                        onClick={handleImageUpload}
+                        disabled={uploadImageMutation.isPending}
+                        className="flex items-center space-x-2"
+                      >
+                        <Upload className="h-4 w-4" />
+                        <span>{uploadImageMutation.isPending ? "Uploading..." : "Upload"}</span>
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {imagePreview && (
+                    <div className="relative inline-block">
+                      <img
+                        src={imagePreview}
+                        alt="Hero preview"
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                        onClick={removeImage}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <div>
                 <Label>Skills</Label>
                 <div className="space-y-2">
