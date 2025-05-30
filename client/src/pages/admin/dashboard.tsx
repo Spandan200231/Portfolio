@@ -46,7 +46,6 @@ import {
   SiInvision,
   SiMiro,
   SiNotion,
-  SiMicrosoftword,
   SiCanva,
   SiFramer
 } from "react-icons/si";
@@ -89,7 +88,7 @@ const availableSkills = [
   { name: "Wireframing", icon: PenTool },
   { name: "Brand Design", icon: Pen },
   { name: "Microsoft Office", icon: FileText },
-  { name: "Word", icon: SiMicrosoftword },
+  { name: "Word", icon: FileText },
   { name: "Excel", icon: Layout },
   { name: "PowerPoint", icon: Presentation },
   { name: "Notion", icon: SiNotion },
