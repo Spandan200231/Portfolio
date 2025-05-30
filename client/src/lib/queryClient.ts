@@ -45,20 +45,19 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      refetchOnReconnect: true,
-      staleTime: 0, // Data is always considered stale
-      gcTime: 0, // Don't cache data (replaces cacheTime)
+      refetchInterval: false, // Disable automatic refetching
+      refetchOnWindowFocus: false, // Don't refetch when window gains focus
+      refetchOnMount: true, // Only refetch when component mounts
+      refetchOnReconnect: true, // Refetch when reconnecting to internet
+      staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+      gcTime: 10 * 60 * 1000, // Cache data for 10 minutes
       retry: 1,
     },
     mutations: {
       retry: false,
       onSuccess: () => {
-        // Invalidate and refetch all queries after successful mutations
+        // Only invalidate queries, don't force refetch
         queryClient.invalidateQueries();
-        queryClient.refetchQueries();
       },
     },
   },
