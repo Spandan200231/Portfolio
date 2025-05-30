@@ -131,7 +131,7 @@ export default function AdminDashboard() {
   // Hero content mutation
   const updateHeroMutation = useMutation({
     mutationFn: async (content: any) => {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("portfolio_admin_token");
       const response = await fetch("/api/content/hero", {
         method: "PUT",
         headers: {
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
   // Contact content mutation
   const updateContactMutation = useMutation({
     mutationFn: async (content: any) => {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("portfolio_admin_token");
       const response = await fetch("/api/content/contact", {
         method: "PUT",
         headers: {
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
   // Social content mutation
   const updateSocialMutation = useMutation({
     mutationFn: async (content: any) => {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("portfolio_admin_token");
       const response = await fetch("/api/content/social", {
         method: "PUT",
         headers: {
@@ -251,7 +251,7 @@ export default function AdminDashboard() {
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
+    localStorage.removeItem("portfolio_admin_token");
     window.location.href = "/admin/login";
   };
 

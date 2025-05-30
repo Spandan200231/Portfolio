@@ -45,7 +45,7 @@ export default function AdminLogin() {
     },
     onSuccess: (data) => {
       if (data.token) {
-        setAuthToken(data.token);
+        localStorage.setItem("portfolio_admin_token", data.token);
         setLocation("/admin/dashboard");
       } else {
         setError("Login failed. No token received.");
