@@ -140,7 +140,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-700 pt-8 mt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} {miscContent.heroTitle}. All rights reserved.</p>
+          <p>{miscContent.footerCopyright}</p>
         </div>
       </div>
     </footer>
