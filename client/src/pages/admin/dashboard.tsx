@@ -1520,25 +1520,29 @@ export default function AdminDashboard() {
                         onChange={(e) => setCaseStudyForm({ ...caseStudyForm, tags: e.target.value })}
                       />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="case-study-featured"
-                        name="featured"
-                        checked={caseStudyForm.featured}
-                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, featured: e.target.checked })}
-                        className="rounded"
-                      />
-                      <Label htmlFor="case-study-featured">Featured Item</Label>
-                      <input
-                        type="checkbox"
-                        id="case-study-published"
-                        name="published"
-                        checked={caseStudyForm.published}
-                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, published: e.target.checked })}
-                        className="rounded"
-                      />
-                      <Label htmlFor="case-study-published">Published</Label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="case-study-featured"
+                          name="featured"
+                          checked={caseStudyForm.featured}
+                          onChange={(e) => setCaseStudyForm({ ...caseStudyForm, featured: e.target.checked })}
+                          className="rounded"
+                        />
+                        <Label htmlFor="case-study-featured">Featured Item</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="case-study-published"
+                          name="published"
+                          checked={caseStudyForm.published}
+                          onChange={(e) => setCaseStudyForm({ ...caseStudyForm, published: e.target.checked })}
+                          className="rounded"
+                        />
+                        <Label htmlFor="case-study-published">Published</Label>
+                      </div>
                     </div>
                     <Button type="submit" disabled={createCaseStudy.isPending}>
                       {createCaseStudy.isPending ? "Creating..." : "Create Case Study"}
