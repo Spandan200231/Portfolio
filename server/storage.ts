@@ -209,7 +209,6 @@ export class MongoStorage implements IStorage {
         caseStudiesDescription: "Deep dives into my design process, challenges faced, and solutions delivered for complex user experience problems.",
         portfolioDescription: "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms."
       }
-      }
     };
 
     await db.collection("siteContent").insertOne({
