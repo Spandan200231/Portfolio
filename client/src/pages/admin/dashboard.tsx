@@ -367,7 +367,7 @@ export default function AdminDashboard() {
     onSuccess: (data) => {
       toast({ title: "Case study image uploaded successfully!" });
       setCaseStudyImagePreview(data.imageUrl);
-      setCaseStudyForm({ ...caseStudyForm, imageUrl: data.imageUrl });
+      setCaseStudyForm(prev => ({ ...prev, imageUrl: data.imageUrl }));
       setCaseStudyImage(null);
     },
     onError: () => {
@@ -732,6 +732,7 @@ export default function AdminDashboard() {
 
     const data = {
       ...caseStudyForm,
+      imageUrl: caseStudyImagePreview || caseStudyForm.imageUrl,
       tags: caseStudyForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
     };
 
@@ -1577,11 +1578,18 @@ export default function AdminDashboard() {
                   ) : (
                     <div className="space-y-4">
                       {caseStudies.map((item: any, index: number) => (
-                        <div key={`admin-case-study-${item.id}-${index}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                        <div key={`admin-case-study-${item.id}-${item.slug}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
                           <img
-                            src={item.imageUrl}
+                            src={item.imageUrl && item.imageUrl.trim() !== "" 
+                              ? item.imageUrl 
+                              : "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                            }
                             alt={item.title}
                             className="h-16 w-16 object-cover rounded"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
+                            }}
                           />
                           <div className="flex-1">
                             <div className="flex items-start justify-between">

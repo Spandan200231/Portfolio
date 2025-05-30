@@ -72,7 +72,7 @@ export default function CaseStudies() {
           <div className="space-y-16 animate-fade-in-up">
             {caseStudies.map((study: any, index: number) => (
               <div 
-                key={study.id} 
+                key={`case-study-${study.id}-${study.slug}`} 
                 className={`grid lg:grid-cols-2 gap-12 items-center ${
                   index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
                 }`}
@@ -130,10 +130,17 @@ export default function CaseStudies() {
                 <div className={`relative ${index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
                   <div className="relative group">
                     <img
-                      src={study.imageUrl || "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"}
+                      src={study.imageUrl && study.imageUrl.trim() !== "" 
+                        ? study.imageUrl 
+                        : "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                      }
                       alt={study.title}
                       className="rounded-xl shadow-2xl w-full h-80 object-cover group-hover:shadow-3xl transition-shadow duration-300"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80";
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
