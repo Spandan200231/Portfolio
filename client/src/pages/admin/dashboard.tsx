@@ -593,13 +593,24 @@ export default function AdminDashboard() {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="about-location">Location</Label>
-                      <Input
-                        id="about-location"
-                        defaultValue={contactContent?.content?.location || "Kolkata, West Bengal, India"}
-                        placeholder="Your location"
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="about-email">Email</Label>
+                        <Input
+                          id="about-email"
+                          type="email"
+                          defaultValue={contactContent?.content?.email || "spandan.majumder0231@gmail.com"}
+                          placeholder="Your email address"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="about-location">Location</Label>
+                        <Input
+                          id="about-location"
+                          defaultValue={contactContent?.content?.location || "Kolkata, West Bengal, India"}
+                          placeholder="Your location"
+                        />
+                      </div>
                     </div>
 
                     <Button 
@@ -607,6 +618,7 @@ export default function AdminDashboard() {
                         const name = (document.getElementById('about-name') as HTMLInputElement).value;
                         const title = (document.getElementById('about-title') as HTMLInputElement).value;
                         const description = (document.getElementById('about-description') as HTMLTextAreaElement).value;
+                        const email = (document.getElementById('about-email') as HTMLInputElement).value;
                         const location = (document.getElementById('about-location') as HTMLInputElement).value;
 
                         try {
@@ -621,11 +633,12 @@ export default function AdminDashboard() {
                             }
                           });
 
-                          // Update contact content with new location
+                          // Update contact content with new email and location
                           await updateContentMutation.mutateAsync({
                             section: 'contact',
                             content: {
                               ...contactContent?.content,
+                              email,
                               location
                             }
                           });

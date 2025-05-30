@@ -87,8 +87,8 @@ export default function Hero() {
     ]
   };
 
-  // Ensure skills is always an array
-  const skills = Array.isArray(heroData.skills) ? heroData.skills : [];
+  // Ensure skills is always an array - check both heroData and heroData.skills
+  const skills = Array.isArray(heroData?.skills) ? heroData.skills : [];
 
   const socialData = socialContent?.content || {
     linkedin: "https://www.linkedin.com/in/spandan-majumder-6b7b52366/",
