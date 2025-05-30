@@ -175,6 +175,15 @@ export default function AdminDashboard() {
 
   const { data: caseStudies = [], isLoading: caseStudiesLoading } = useQuery({
     queryKey: ["/api/case-studies/all"],
+    queryFn: async () => {
+      const response = await fetch("/api/case-studies/all", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch case studies");
+      return response.json();
+    },
   });
 
   // Fetch hero content
@@ -194,6 +203,15 @@ export default function AdminDashboard() {
 
   const { data: contactMessages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ["/api/contact/messages"],
+    queryFn: async () => {
+      const response = await fetch("/api/contact/messages", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch contact messages");
+      return response.json();
+    },
   });
 
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
@@ -614,6 +632,7 @@ export default function AdminDashboard() {
 
     const data = {
       ...portfolioForm,
+      imageUrl: portfolioImagePreview || portfolioForm.imageUrl,
       tags: portfolioForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
     };
 
@@ -1157,6 +1176,8 @@ export default function AdminDashboard() {
                         <Input
                           id="portfolio-title"
                           name="title"
+                          value={portfolioForm.title}
+                          onChange={(e) => setPortfolioForm({...portfolioForm, title: e.target.value})}
                           required
                         />
                       </div>
@@ -1165,6 +1186,8 @@ export default function AdminDashboard() {
                         <Input
                           id="portfolio-category"
                           name="category"
+                          value={portfolioForm.category}
+                          onChange={(e) => setPortfolioForm({...portfolioForm, category: e.target.value})}
                           placeholder="e.g., UI/UX Design, Web Development"
                         />
                       </div>
@@ -1174,6 +1197,8 @@ export default function AdminDashboard() {
                       <Textarea
                         id="portfolio-description"
                         name="description"
+                        value={portfolioForm.description}
+                        onChange={(e) => setPortfolioForm({...portfolioForm, description: e.target.value})}
                         rows={3}
                       />
                     </div>
@@ -1226,6 +1251,8 @@ export default function AdminDashboard() {
                         id="portfolio-projectUrl"
                         name="projectUrl"
                         type="url"
+                        value={portfolioForm.projectUrl}
+                        onChange={(e) => setPortfolioForm({...portfolioForm, projectUrl: e.target.value})}
                         placeholder="https://example.com"
                       />
                     </div>
@@ -1234,6 +1261,8 @@ export default function AdminDashboard() {
                       <Input
                         id="portfolio-tags"
                         name="tags"
+                        value={portfolioForm.tags}
+                        onChange={(e) => setPortfolioForm({...portfolioForm, tags: e.target.value})}
                         placeholder="React, TypeScript, UI Design"
                       />
                     </div>
@@ -1242,12 +1271,14 @@ export default function AdminDashboard() {
                         type="checkbox"
                         id="portfolio-featured"
                         name="featured"
+                        checked={portfolioForm.featured}
+                        onChange={(e) => setPortfolioForm({...portfolioForm, featured: e.target.checked})}
                         className="rounded"
                       />
                       <Label htmlFor="portfolio-featured">Featured Item</Label>
                     </div>
-                    <Button type="submit" disabled={createPortfolioMutation.isPending}>
-                      {createPortfolioMutation.isPending ? "Creating..." : "Create Portfolio Item"}
+                    <Button type="submit" disabled={createPortfolioItem.isPending}>
+                      {createPortfolioItem.isPending ? "Creating..." : "Create Portfolio Item"}
                     </Button>
                   </form>
                 </CardContent>
