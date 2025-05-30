@@ -42,7 +42,7 @@ export default function Portfolio() {
           <p className="body-text max-w-2xl mx-auto mb-8">
             A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms.
           </p>
-          
+
           <div className="flex justify-center">
             <div className="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm border border-green-200 dark:border-green-800">
               <FolderSync className="h-4 w-4" />
@@ -70,8 +70,8 @@ export default function Portfolio() {
           </div>
         ) : portfolioItems.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 animate-fade-in-up">
-            {portfolioItems.map((item: any) => (
-              <div key={item.id} className="portfolio-card group">
+            {portfolioItems.map((item: any, index: number) => (
+              <div key={`portfolio-${item.id}-${index}`} className="portfolio-card group">
                 <div className="relative overflow-hidden">
                   <img
                     src={item.imageUrl || "https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"}
@@ -100,7 +100,7 @@ export default function Portfolio() {
                     </Badge>
                   )}
                 </div>
-                
+
                 <div className="p-6">
                   <h3 className="font-semibold text-lg mb-2 text-contrast group-hover:text-accent transition-colors">
                     {item.title}
@@ -108,7 +108,7 @@ export default function Portfolio() {
                   <p className="body-text text-sm mb-4 line-clamp-2">
                     {item.description || "Design project showcasing modern UI/UX principles and user-centered approach."}
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-2 mb-4">
                     {item.category && (
                       <Badge variant="secondary" className="text-xs">
