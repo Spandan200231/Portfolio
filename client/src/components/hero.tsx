@@ -12,7 +12,14 @@ import {
   SiAdobexd,
   SiAdobephotoshop,
   SiAdobepremierepro,
-  SiHtml5
+  SiHtml5,
+  SiReact,
+  SiNodedotjs,
+  SiPython,
+  SiJavascript,
+  SiTypescript,
+  SiGit,
+  SiDocker
 } from "react-icons/si";
 
 const skillIcons: { [key: string]: any } = {
