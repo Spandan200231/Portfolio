@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Trash2, 
@@ -216,7 +217,7 @@ export default function AdminDashboard() {
     const formData = new FormData(e.target as HTMLFormElement);
     const content = {
       email: formData.get("email"),
-      phone: formData.get("phone"),
+      responseTime: formData.get("responseTime"),
       location: formData.get("location"),
     };
     updateContactMutation.mutate(content);
@@ -299,7 +300,7 @@ export default function AdminDashboard() {
               <User className="h-4 w-4" />
               <span>Hero Section</span>
             </button>
-            
+
             <button
               onClick={() => setActiveSection("contact")}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
@@ -311,7 +312,7 @@ export default function AdminDashboard() {
               <Mail className="h-4 w-4" />
               <span>Contact Info</span>
             </button>
-            
+
             <button
               onClick={() => setActiveSection("social")}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
@@ -325,7 +326,7 @@ export default function AdminDashboard() {
             </button>
 
             <div className="border-t border-border my-4"></div>
-            
+
             <button
               onClick={() => window.open("/", "_blank")}
               className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-contrast hover:bg-accent/10"
@@ -476,12 +477,19 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  defaultValue={contactData?.content?.phone || ""}
-                />
+                <Label htmlFor="contact-responseTime">Response Time</Label>
+                <Select name="responseTime" defaultValue={contactData?.content?.responseTime || "Within 24 hours"}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select response time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Within 2 hours">Within 2 hours</SelectItem>
+                    <SelectItem value="Within 24 hours">Within 24 hours</SelectItem>
+                    <SelectItem value="Within 48 hours">Within 48 hours</SelectItem>
+                    <SelectItem value="Within 72 hours">Within 72 hours</SelectItem>
+                    <SelectItem value="Within 1 week">Within 1 week</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="location">Location</Label>
