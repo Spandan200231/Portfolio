@@ -135,6 +135,8 @@ export default function AdminDashboard() {
   const [portfolioImagePreview, setPortfolioImagePreview] = useState<string>("");
   const [caseStudyImage, setCaseStudyImage] = useState<File | null>(null);
   const [caseStudyImagePreview, setCaseStudyImagePreview] = useState<string>("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeFileName, setResumeFileName] = useState<string>("");
 
   // Portfolio state
   const [isPortfolioDialogOpen, setIsPortfolioDialogOpen] = useState(false);
@@ -401,6 +403,39 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast({ title: "Failed to upload case study image", variant: "destructive" });
+    },
+  });
+
+  // Resume upload mutation
+  const uploadResumeMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await fetch("/api/upload/resume", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to upload resume");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Resume uploaded successfully!" });
+      setResumeFileName(data.fileName);
+      setResumeFile(null);
+      // Update miscellaneous content with resume URL
+      updateMiscMutation.mutate({
+        ...miscData?.content,
+        resumeUrl: data.resumeUrl,
+      });
+    },
+    onError: () => {
+      toast({ title: "Failed to upload resume", variant: "destructive" });
     },
   });
 
@@ -753,6 +788,29 @@ export default function AdminDashboard() {
   const removeCaseStudyImage = () => {
     setCaseStudyImage(null);
     setCaseStudyImagePreview("");
+  };
+
+  const handleResumeSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        setResumeFile(file);
+        setResumeFileName(file.name);
+      } else {
+        toast({ title: "Please select a PDF file", variant: "destructive" });
+      }
+    }
+  };
+
+  const handleResumeUpload = () => {
+    if (resumeFile) {
+      uploadResumeMutation.mutate(resumeFile);
+    }
+  };
+
+  const removeResume = () => {
+    setResumeFile(null);
+    setResumeFileName("");
   };
 
   // Case Study form helpers
@@ -2021,6 +2079,73 @@ export default function AdminDashboard() {
                       placeholder="Enter portfolio section description"
                     />
                     <p className="text-sm text-contrast-secondary mt-1">Displayed in the portfolio section</p>
+                  </div>
+
+                  <div>
+                    <Label>Resume/CV Upload</Label>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <Input
+                          type="file"
+                          accept=".pdf"
+                          onChange={handleResumeSelect}
+                          className="flex-1"
+                        />
+                        {resumeFile && (
+                          <Button
+                            type="button"
+                            onClick={handleResumeUpload}
+                            disabled={uploadResumeMutation.isPending}
+                            className="flex items-center space-x-2"
+                          >
+                            <Upload className="h-4 w-4" />
+                            <span>{uploadResumeMutation.isPending ? "Uploading..." : "Upload"}</span>
+                          </Button>
+                        )}
+                      </div>
+
+                      {miscData?.content?.resumeUrl && (
+                        <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                          <FileText className="h-5 w-5 text-green-600" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                              Current Resume: {miscData.content.resumeUrl.split('/').pop()}
+                            </p>
+                            <p className="text-xs text-green-600 dark:text-green-400">
+                              Users can download this from the hero section
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(miscData.content.resumeUrl, "_blank")}
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            View
+                          </Button>
+                        </div>
+                      )}
+
+                      {resumeFileName && !miscData?.content?.resumeUrl && (
+                        <div className="relative inline-block">
+                          <div className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded border">
+                            <FileText className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm text-blue-800 dark:text-blue-300">{resumeFileName}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                              onClick={removeResume}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-contrast-secondary mt-1">Upload a PDF resume that users can download from the hero section</p>
                   </div>
 
                   <Button type="submit" disabled={updateMiscMutation.isPending}>

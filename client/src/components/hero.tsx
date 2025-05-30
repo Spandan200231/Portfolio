@@ -175,6 +175,16 @@ export default function Hero() {
                 <Button onClick={scrollToContact} className="btn-primary">
                   Get In Touch
                 </Button>
+                {miscData?.content?.resumeUrl && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.open(miscData.content.resumeUrl, "_blank")}
+                    className="flex items-center space-x-2"
+                  >
+                    <span>Download Resume</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button 
                   variant="outline" 
                   onClick={() => window.open(socialData.behance, "_blank")}

@@ -608,6 +608,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+    // Upload portfolio image
+    app.post("/api/upload/portfolio-image", authenticateToken, upload.single("image"), async (req, res) => {
+      try {
+        if (!req.file) {
+          return res.status(400).json({ message: "No image file provided" });
+        }
+
+        const filename = `portfolio-${Date.now()}-${req.file.originalname}`;
+        const filepath = path.join("uploads", filename);
+          // Process image with Sharp
+        if (req.file.mimetype.startsWith("image/")) {
+          await sharp(req.file.path)
+            .resize(800, 600, { fit: "cover", withoutEnlargement: true })
+            .jpeg({ quality: 85 })
+            .toFile(filepath);
+          fs.unlinkSync(req.file.path);
+        } else {
+          return res.status(400).json({ message: "Only image files are allowed" });
+        }
+
+        const imageUrl = `/api/uploads/${filename}`;
+        res.json({ imageUrl, filename });
+      } catch (error) {
+        console.error("Error uploading portfolio image:", error);
+        res.status(500).json({ message: "Failed to upload image" });
+      }
+    });
+
+    // Upload resume
+    app.post("/api/upload/resume", authenticateToken, upload.single("resume"), async (req, res) => {
+      try {
+        if (!req.file) {
+          return res.status(400).json({ message: "No resume file provided" });
+        }
+
+        // Check if file is PDF
+        if (req.file.mimetype !== 'application/pdf') {
+          return res.status(400).json({ message: "Only PDF files are allowed" });
+        }
+
+        const filename = `resume-${Date.now()}-${req.file.originalname}`;
+        const filepath = path.join("uploads", filename);
+        fs.renameSync(req.file.path, filepath);
+
+        const resumeUrl = `/api/uploads/${filename}`;
+        res.json({ 
+          resumeUrl,
+          fileName: req.file.originalname
+        });
+      } catch (error) {
+        console.error("Error uploading resume:", error);
+        res.status(500).json({ message: "Failed to upload resume" });
+      }
+    });
+
   const httpServer = createServer(app);
   return httpServer;
 }

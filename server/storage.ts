@@ -1,4 +1,3 @@
-
 import { MongoClient, Db, Collection, ObjectId } from "mongodb";
 import { 
   users, 
@@ -30,16 +29,16 @@ async function connectToMongoDB() {
   try {
     // Use environment variable for MongoDB URI
     const mongoUri = process.env.MONGODB_URI || "mongodb+srv://portfolioUser:Spandan200231@cluster0.lscdfht.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-    
+
     mongoClient = new MongoClient(mongoUri);
     await mongoClient.connect();
     mongoDb = mongoClient.db("portfolio");
-    
+
     console.log("✅ Connected to MongoDB Atlas successfully");
-    
+
     // Initialize indexes for better performance
     await initializeIndexes(mongoDb);
-    
+
     return mongoDb;
   } catch (error) {
     console.error("❌ Failed to connect to MongoDB Atlas:", error);
@@ -55,14 +54,14 @@ async function initializeIndexes(db: Db) {
   try {
     // Create indexes for better query performance
     await db.collection("users").createIndex({ email: 1 }, { unique: true });
-    
+
     // Drop existing behanceId index if it exists
     try {
       await db.collection("portfolioItems").dropIndex("behanceId_1");
     } catch (dropError) {
       // Index might not exist, which is fine
     }
-    
+
     // Create new sparse unique index for behanceId (allows multiple null values)
     await db.collection("portfolioItems").createIndex(
       { behanceId: 1 }, 
@@ -72,14 +71,14 @@ async function initializeIndexes(db: Db) {
         partialFilterExpression: { behanceId: { $type: "string" } }
       }
     );
-    
+
     await db.collection("portfolioItems").createIndex({ featured: 1 });
     await db.collection("caseStudies").createIndex({ slug: 1 }, { unique: true });
     await db.collection("caseStudies").createIndex({ published: 1 });
     await db.collection("siteContent").createIndex({ section: 1 }, { unique: true });
     await db.collection("contactMessages").createIndex({ createdAt: -1 });
     await db.collection("contactMessages").createIndex({ read: 1 });
-    
+
     console.log("📊 Database indexes created successfully");
   } catch (error) {
     console.log("⚠️ Index creation warning (this is normal on first run):", error.message);
@@ -140,10 +139,10 @@ export class MongoStorage implements IStorage {
   private async initializeDefaultData() {
     try {
       const db = await connectToMongoDB();
-      
+
       // Check if admin user exists
       const adminExists = await db.collection("users").findOne({ email: "spandan.majumder0231@gmail.com" });
-      
+
       if (!adminExists) {
         // Create default admin user
         await this.createUser({
@@ -162,9 +161,9 @@ export class MongoStorage implements IStorage {
           await this.createDefaultSiteContent(section);
         }
       }
-      
+
       console.log("🎨 Default site content initialized");
-      
+
     } catch (error) {
       console.error("❌ Error initializing default data:", error);
     }
@@ -172,7 +171,7 @@ export class MongoStorage implements IStorage {
 
   private async createDefaultSiteContent(section: string) {
     const db = await connectToMongoDB();
-    
+
     const defaultContent = {
       hero: {
         name: "Spandan Majumder",
@@ -207,8 +206,9 @@ export class MongoStorage implements IStorage {
         copyrightText: "© 2025 Spandan Majumder. All rights reserved.",
         footerCopyright: "© 2025 Spandan Majumder. All rights reserved.",
         caseStudiesDescription: "Deep dives into my design process, challenges faced, and solutions delivered for complex user experience problems.",
-        portfolioDescription: "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms."
-      }
+        portfolioDescription: "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms.",
+        resumeUrl: "",
+      },
     };
 
     await db.collection("siteContent").insertOne({
@@ -251,7 +251,7 @@ export class MongoStorage implements IStorage {
         id, 
         createdAt: new Date()
       };
-      
+
       await db.collection("users").insertOne(user);
       return user;
     } catch (error) {
@@ -268,7 +268,7 @@ export class MongoStorage implements IStorage {
         .find({})
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       return items.map(item => ({ ...item, _id: undefined })) as PortfolioItem[];
     } catch (error) {
       console.error("Error getting portfolio items:", error);
@@ -303,7 +303,7 @@ export class MongoStorage implements IStorage {
       const db = await connectToMongoDB();
       const id = this.currentPortfolioId++;
       const now = new Date();
-      
+
       const item: any = {
         id,
         title: insertItem.title,
@@ -369,7 +369,7 @@ export class MongoStorage implements IStorage {
         .find({ featured: true })
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       return items.map(item => ({ ...item, _id: undefined })) as PortfolioItem[];
     } catch (error) {
       console.error("Error getting featured portfolio items:", error);
@@ -385,7 +385,7 @@ export class MongoStorage implements IStorage {
         .find({})
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       return studies.map(study => ({ ...study, _id: undefined })) as CaseStudy[];
     } catch (error) {
       console.error("Error getting case studies:", error);
@@ -420,7 +420,7 @@ export class MongoStorage implements IStorage {
       const db = await connectToMongoDB();
       const id = this.currentCaseStudyId++;
       const now = new Date();
-      
+
       const study: CaseStudy = {
         id,
         slug: insertStudy.slug,
@@ -485,7 +485,7 @@ export class MongoStorage implements IStorage {
         .find({ published: true })
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       return studies.map(study => ({ ...study, _id: undefined })) as CaseStudy[];
     } catch (error) {
       console.error("Error getting published case studies:", error);
@@ -509,7 +509,7 @@ export class MongoStorage implements IStorage {
     try {
       const db = await connectToMongoDB();
       const now = new Date();
-      
+
       const result = await db.collection("siteContent").findOneAndUpdate(
         { section: content.section },
         { 
@@ -544,7 +544,7 @@ export class MongoStorage implements IStorage {
         .find({})
         .sort({ createdAt: -1 })
         .toArray();
-      
+
       return messages.map(msg => ({ ...msg, _id: undefined })) as ContactMessage[];
     } catch (error) {
       console.error("Error getting contact messages:", error);
@@ -567,7 +567,7 @@ export class MongoStorage implements IStorage {
     try {
       const db = await connectToMongoDB();
       const id = this.currentMessageId++;
-      
+
       const message: ContactMessage = {
         id,
         firstName: insertMessage.firstName,
@@ -595,7 +595,7 @@ export class MongoStorage implements IStorage {
         { id },
         { $set: { read: true } }
       );
-      
+
       return result.modifiedCount > 0;
     } catch (error) {
       console.error("Error marking message as read:", error);
