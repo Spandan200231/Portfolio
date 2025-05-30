@@ -14,7 +14,6 @@ import {
   SiAdobepremierepro,
   SiHtml5
 } from "react-icons/si";
-import { useEffect } from "react";
 
 const skillIcons: { [key: string]: any } = {
   "Figma": SiFigma,
@@ -25,27 +24,12 @@ const skillIcons: { [key: string]: any } = {
 };
 
 export default function Hero() {
-  const { data: heroContent, isLoading: heroLoading, refetch: refetchHero } = useQuery({
+  const { data: heroContent, isLoading: heroLoading } = useQuery({
     queryKey: ["/api/content/hero"],
-    staleTime: 0,
-    gcTime: 0,
-    refetchInterval: 3000, // Refetch every 3 seconds
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    refetchIntervalInBackground: true,
   });
-
-  // Force refetch on component mount
-  useEffect(() => {
-    refetchHero();
-  }, [refetchHero]);
 
   const { data: socialContent, isLoading: socialLoading } = useQuery({
     queryKey: ["/api/content/social"],
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
   });
 
   const isLoading = heroLoading || socialLoading;
@@ -103,6 +87,9 @@ export default function Hero() {
     ]
   };
 
+  // Ensure skills is always an array
+  const skills = Array.isArray(heroData.skills) ? heroData.skills : [];
+
   const socialData = socialContent?.content || {
     linkedin: "https://www.linkedin.com/in/spandan-majumder-6b7b52366/",
     facebook: "https://www.facebook.com/profile.php?id=61576610008524",
@@ -153,7 +140,7 @@ export default function Hero() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {heroData.skills.map((skill: any, index: number) => {
+                {skills.map((skill: any, index: number) => {
                   const IconComponent = skillIcons[skill.name];
 
                   return (
