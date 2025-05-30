@@ -390,8 +390,6 @@ export default function AdminDashboard() {
                   required
                 />
               </div>
-                />
-              </div>
               <div>
                 <Label>Skills</Label>
                 <div className="space-y-2">
