@@ -42,13 +42,6 @@ export default function Portfolio() {
           <p className="body-text max-w-2xl mx-auto mb-8">
             A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms.
           </p>
-
-          <div className="flex justify-center">
-            <div className="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm border border-green-200 dark:border-green-800">
-              <FolderSync className="h-4 w-4" />
-              <span>Auto-synced with Behance</span>
-            </div>
-          </div>
         </div>
 
         {/* Portfolio Grid */}
