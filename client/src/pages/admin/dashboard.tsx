@@ -68,7 +68,6 @@ import {
   Layers,
   PenTool,
   Users,
-  FileText,
   Presentation
 } from "lucide-react";
 
