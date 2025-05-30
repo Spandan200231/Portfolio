@@ -133,6 +133,8 @@ export default function AdminDashboard() {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [portfolioImage, setPortfolioImage] = useState<File | null>(null);
   const [portfolioImagePreview, setPortfolioImagePreview] = useState<string>("");
+  const [caseStudyImage, setCaseStudyImage] = useState<File | null>(null);
+  const [caseStudyImagePreview, setCaseStudyImagePreview] = useState<string>("");
 
   // Portfolio state
   const [isPortfolioDialogOpen, setIsPortfolioDialogOpen] = useState(false);
@@ -323,6 +325,35 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast({ title: "Failed to upload portfolio image", variant: "destructive" });
+    },
+  });
+
+  // Case study image upload mutation
+  const uploadCaseStudyImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetch("/api/upload/case-study-image", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to upload image");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Case study image uploaded successfully!" });
+      setCaseStudyImagePreview(data.imageUrl);
+      setCaseStudyForm({ ...caseStudyForm, imageUrl: data.imageUrl });
+      setCaseStudyImage(null);
+    },
+    onError: () => {
+      toast({ title: "Failed to upload case study image", variant: "destructive" });
     },
   });
 
@@ -616,6 +647,29 @@ export default function AdminDashboard() {
     setPortfolioImagePreview("");
   };
 
+  const handleCaseStudyImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCaseStudyImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCaseStudyImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCaseStudyImageUpload = () => {
+    if (caseStudyImage) {
+      uploadCaseStudyImageMutation.mutate(caseStudyImage);
+    }
+  };
+
+  const removeCaseStudyImage = () => {
+    setCaseStudyImage(null);
+    setCaseStudyImagePreview("");
+  };
+
   // Case Study form helpers
   const resetCaseStudyForm = () => {
     setCaseStudyForm({
@@ -631,6 +685,8 @@ export default function AdminDashboard() {
       featured: false,
       published: false,
     });
+    setCaseStudyImage(null);
+    setCaseStudyImagePreview("");
   };
 
   const handleCaseStudyEdit = (caseStudy: CaseStudy) => {
@@ -648,6 +704,7 @@ export default function AdminDashboard() {
       featured: caseStudy.featured || false,
       published: caseStudy.published || false,
     });
+    setCaseStudyImagePreview(caseStudy.imageUrl || "");
     setIsCaseStudyDialogOpen(true);
   };
 
@@ -1381,13 +1438,47 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="case-study-imageUrl">Image URL</Label>
-                      <Input
-                        id="case-study-imageUrl"
-                        name="imageUrl"
-                        value={caseStudyForm.imageUrl}
-                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, imageUrl: e.target.value })}
-                      />
+                      <Label>Case Study Image</Label>
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-4">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCaseStudyImageSelect}
+                            className="flex-1"
+                          />
+                          {caseStudyImage && (
+                            <Button
+                              type="button"
+                              onClick={handleCaseStudyImageUpload}
+                              disabled={uploadCaseStudyImageMutation.isPending}
+                              className="flex items-center space-x-2"
+                            >
+                              <Upload className="h-4 w-4" />
+                              <span>{uploadCaseStudyImageMutation.isPending ? "Uploading..." : "Upload"}</span>
+                            </Button>
+                          )}
+                        </div>
+
+                        {caseStudyImagePreview && (
+                          <div className="relative inline-block">
+                            <img
+                              src={caseStudyImagePreview}
+                              alt="Case study preview"
+                              className="w-32 h-24 object-cover rounded-lg border-2 border-border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                              onClick={removeCaseStudyImage}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <Label htmlFor="case-study-tags">Tags (comma-separated)</Label>
