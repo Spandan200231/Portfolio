@@ -330,40 +330,6 @@ export default function Hero() {
   );
 }
 
-const skillIcons: { [key: string]: any } = {
-  "Figma": SiFigma,
-  "HTML & CSS": SiHtml5,
-  "Adobe XD": SiAdobexd,
-  "Photoshop": SiAdobephotoshop,
-  "Premiere Pro": SiAdobepremierepro,
-  "React": SiReact,
-  "Node.js": SiNodedotjs,
-  "Python": SiPython,
-  "JavaScript": SiJavascript,
-  "TypeScript": SiTypescript,
-  "Git": SiGit,
-  "Docker": SiDocker,
-  "Illustrator": SiAdobeillustrator,
-  "InDesign": SiAdobeindesign,
-  "After Effects": SiAdobeaftereffects,
-  "Sketch": SiSketch,
-  "Canva": SiCanva,
-  "Framer": SiFramer,
-  "InVision": SiInvision,
-  "Marvel": PenTool,
-  "Miro": SiMiro,
-  "UI Design": Layout,
-  "UX Design": Users,
-  "Prototyping": Layers,
-  "Wireframing": PenTool,
-  "Brand Design": Pen,
-  "Microsoft Office": FileText,
-  "Word": FileText,
-  "Excel": Layout,
-  "PowerPoint": Presentation,
-  "Notion": SiNotion,
-};
-
 export default function Hero() {
   const { data: heroContent, isLoading: heroLoading } = useQuery({
     queryKey: ["/api/content/hero"],
