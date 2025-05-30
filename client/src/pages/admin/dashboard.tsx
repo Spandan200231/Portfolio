@@ -206,8 +206,6 @@ export default function AdminDashboard() {
     const content = {
       name: formData.get("name"),
       introduction: formData.get("introduction"),
-      email: formData.get("email"),
-      responseTime: formData.get("responseTime"),
       skills: selectedSkills.map(skill => ({ name: skill })),
     };
     updateHeroMutation.mutate(content);
@@ -392,23 +390,6 @@ export default function AdminDashboard() {
                   required
                 />
               </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  defaultValue={heroData?.content?.email || ""}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="responseTime">Response Time</Label>
-                <Input
-                  id="responseTime"
-                  name="responseTime"
-                  defaultValue={heroData?.content?.responseTime || ""}
-                  placeholder="e.g., Usually responds within 24 hours"
                 />
               </div>
               <div>
