@@ -30,6 +30,7 @@ export default function Footer() {
   const miscContent = miscData?.content || {
     footerCopyright: "© 2025 Spandan Majumder. All rights reserved.",
     footerText: "Available for freelance projects and collaborations.",
+    availabilityText: "Available for freelance projects and collaborations.",
     heroTitle: "Spandan Majumder",
     heroSubtitle: "Creating meaningful digital experiences through thoughtful design and user-centered approaches."
   };
@@ -132,7 +133,7 @@ export default function Footer() {
               </a>
             </div>
             <p className="text-gray-400 text-sm">
-              {miscContent.footerText}
+              {miscContent.availabilityText || miscContent.footerText}
             </p>
           </div>
         </div>
