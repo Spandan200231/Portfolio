@@ -19,8 +19,31 @@ import {
   SiJavascript,
   SiTypescript,
   SiGit,
-  SiDocker
+  SiDocker,
+  SiAdobeillustrator,
+  SiAdobeindesign,
+  SiAdobeaftereffects,
+  SiSketch,
+  SiInvision,
+  SiMarvel,
+  SiMiro,
+  SiNotion,
+  SiMicrosoft,
+  SiMicrosoftoffice,
+  SiMicrosoftword,
+  SiMicrosoftexcel,
+  SiMicrosoftpowerpoint,
+  SiCanva,
+  SiFramer
 } from "react-icons/si";
+
+import { 
+  Pen,
+  Layout,
+  Layers,
+  PenTool,
+  Users
+} from "lucide-react";
 
 const skillIcons: { [key: string]: any } = {
   "Figma": SiFigma,
@@ -35,6 +58,25 @@ const skillIcons: { [key: string]: any } = {
   "TypeScript": SiTypescript,
   "Git": SiGit,
   "Docker": SiDocker,
+  "Illustrator": SiAdobeillustrator,
+  "InDesign": SiAdobeindesign,
+  "After Effects": SiAdobeaftereffects,
+  "Sketch": SiSketch,
+  "Canva": SiCanva,
+  "Framer": SiFramer,
+  "InVision": SiInvision,
+  "Marvel": SiMarvel,
+  "Miro": SiMiro,
+  "UI Design": Layout,
+  "UX Design": Users,
+  "Prototyping": Layers,
+  "Wireframing": PenTool,
+  "Brand Design": Pen,
+  "Microsoft Office": SiMicrosoft,
+  "Word": SiMicrosoftword,
+  "Excel": SiMicrosoftexcel,
+  "PowerPoint": SiMicrosoftpowerpoint,
+  "Notion": SiNotion,
 };
 
 export default function Hero() {
