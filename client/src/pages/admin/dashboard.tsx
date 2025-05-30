@@ -375,6 +375,28 @@ export default function AdminDashboard() {
     },
   });
 
+  // Mark message as read mutation
+  const markAsReadMutation = useMutation({
+    mutationFn: async (messageId: number) => {
+      const response = await fetch(`/api/contact/messages/${messageId}/read`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to mark message as read");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contact/messages"] });
+      toast({ title: "Message marked as read" });
+    },
+    onError: () => {
+      toast({ title: "Failed to mark message as read", variant: "destructive" });
+    },
+  });
+
   // Portfolio mutations
   const createPortfolioItem = useMutation({
     mutationFn: async (data: InsertPortfolioItem) => {
@@ -881,6 +903,24 @@ export default function AdminDashboard() {
               <span>Case Studies</span>
             </button>
 
+            {/* Messages Tab */}
+            <button
+              onClick={() => setActiveSection("messages")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "messages" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Messages</span>
+              {contactMessages.length > 0 && (
+                <Badge variant="destructive" className="ml-auto text-xs">
+                  {contactMessages.filter(msg => !msg.read).length}
+                </Badge>
+              )}
+            </button>
+
             <div className="border-t border-border my-4"></div>
 
             <button
@@ -916,6 +956,7 @@ export default function AdminDashboard() {
               {activeSection === "social" && "Social Media Links"}
               {activeSection === "portfolio" && "Portfolio Management"}
               {activeSection === "case-studies" && "Case Studies Management"}
+              {activeSection === "messages" && "Contact Messages"}
             </h1>
             <p className="text-contrast-secondary mt-2">
               {activeSection === "hero" && "Manage your personal information and skills"}
@@ -923,6 +964,7 @@ export default function AdminDashboard() {
               {activeSection === "social" && "Configure your social media presence"}
               {activeSection === "portfolio" && "Manage your portfolio items and featured work"}
               {activeSection === "case-studies" && "Manage your case studies for UI/UX and graphics design"}
+              {activeSection === "messages" && "View and manage contact form submissions"}
             </p>
           </div>
 
@@ -1650,6 +1692,197 @@ export default function AdminDashboard() {
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeSection === "messages" && (
+            <div className="space-y-6">
+              {/* Messages Overview */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-contrast-secondary">Total Messages</p>
+                        <p className="text-2xl font-bold text-contrast">{contactMessages.length}</p>
+                      </div>
+                      <MessageCircle className="h-8 w-8 text-blue-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-contrast-secondary">Unread</p>
+                        <p className="text-2xl font-bold text-contrast">
+                          {contactMessages.filter(msg => !msg.read).length}
+                        </p>
+                      </div>
+                      <Mail className="h-8 w-8 text-orange-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-contrast-secondary">Read</p>
+                        <p className="text-2xl font-bold text-contrast">
+                          {contactMessages.filter(msg => msg.read).length}
+                        </p>
+                      </div>
+                      <Eye className="h-8 w-8 text-green-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Messages List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contact Messages</CardTitle>
+                  <CardDescription>
+                    Messages received through the contact form
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {messagesLoading ? (
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, index) => (
+                        <div key={index} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                            <Skeleton className="h-3 w-full" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : contactMessages.length === 0 ? (
+                    <div className="text-center py-12 text-contrast-secondary">
+                      <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium">No messages yet</p>
+                      <p className="text-sm">Contact form submissions will appear here</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {contactMessages.map((message: any) => (
+                        <div 
+                          key={message.id} 
+                          className={`p-6 border rounded-lg transition-colors ${
+                            message.read 
+                              ? "border-border bg-card" 
+                              : "border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="flex-shrink-0">
+                                <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                  {message.firstName.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-contrast">
+                                  {message.firstName} {message.lastName}
+                                  {!message.read && (
+                                    <Badge variant="destructive" className="ml-2 text-xs">
+                                      New
+                                    </Badge>
+                                  )}
+                                </h3>
+                                <p className="text-sm text-contrast-secondary">{message.email}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs text-contrast-secondary">
+                                {new Date(message.createdAt).toLocaleString()}
+                              </span>
+                              {!message.read && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => markAsReadMutation.mutate(message.id)}
+                                  disabled={markAsReadMutation.isPending}
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  Mark Read
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-sm font-medium text-contrast-secondary mb-1">Subject:</p>
+                              <p className="text-contrast">{message.subject}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-sm font-medium text-contrast-secondary mb-1">Message:</p>
+                              <div className="bg-muted/50 p-3 rounded border">
+                                <p className="text-contrast whitespace-pre-wrap">{message.message}</p>
+                              </div>
+                            </div>
+
+                            {message.attachments && message.attachments.length > 0 && (
+                              <div>
+                                <p className="text-sm font-medium text-contrast-secondary mb-2">Attachments:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {message.attachments.map((attachment: string, index: number) => (
+                                    <a
+                                      key={index}
+                                      href={`/api/uploads/${attachment}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center space-x-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-950/40 rounded-lg border border-blue-200 dark:border-blue-800 transition-colors"
+                                    >
+                                      <div className="flex-shrink-0">
+                                        {attachment.toLowerCase().match(/\.(jpg|jpeg|png|gif)$/) ? (
+                                          <img
+                                            src={`/api/uploads/${attachment}`}
+                                            alt="Attachment"
+                                            className="h-8 w-8 object-cover rounded border"
+                                          />
+                                        ) : (
+                                          <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
+                                            <FileText className="h-4 w-4 text-gray-500" />
+                                          </div>
+                                        )}
+                                      </div>
+                                      <span className="text-sm text-blue-700 dark:text-blue-300 hover:underline">
+                                        {attachment}
+                                      </span>
+                                      <ExternalLink className="h-3 w-3 text-blue-500" />
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between pt-2 border-t border-border">
+                              <div className="flex items-center space-x-4 text-xs text-contrast-secondary">
+                                <span>📧 Reply to: {message.email}</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.open(`mailto:${message.email}?subject=Re: ${message.subject}`)}
+                                className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                              >
+                                <Mail className="h-3 w-3 mr-1" />
+                                Reply
+                              </Button>
                             </div>
                           </div>
                         </div>
