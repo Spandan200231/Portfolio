@@ -14,6 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import { 
   LogOut, 
@@ -39,7 +41,8 @@ import {
   Settings,
   Key,
   Globe,
-  Palette
+  Palette,
+  Check
 } from "lucide-react";
 import { 
   SiLinkedin, 
@@ -64,22 +67,77 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 const availableSkills = [
-  { name: "Figma", icon: SiFigma },
-  { name: "HTML & CSS", icon: SiHtml5 },
-  { name: "Adobe XD", icon: SiAdobexd },
-  { name: "Photoshop", icon: SiAdobephotoshop },
-  { name: "Premiere Pro", icon: SiAdobepremierepro },
-  { name: "React", icon: SiReact },
-  { name: "Node.js", icon: SiNodedotjs },
-  { name: "Python", icon: SiPython },
-  { name: "JavaScript", icon: SiJavascript },
-  { name: "TypeScript", icon: SiTypescript },
-  { name: "Git", icon: SiGit },
-  { name: "Docker", icon: SiDocker },
-  { name: "Prototyping", icon: null },
-  { name: "Wireframing", icon: null },
-  { name: "InDesign", icon: null },
-  { name: "Dora", icon: null }
+  // Design Tools
+  { name: "Figma", icon: SiFigma, category: "Design" },
+  { name: "Adobe XD", icon: SiAdobexd, category: "Design" },
+  { name: "Photoshop", icon: SiAdobephotoshop, category: "Design" },
+  { name: "Illustrator", icon: null, category: "Design" },
+  { name: "InDesign", icon: null, category: "Design" },
+  { name: "After Effects", icon: null, category: "Design" },
+  { name: "Premiere Pro", icon: SiAdobepremierepro, category: "Design" },
+  { name: "Sketch", icon: null, category: "Design" },
+  { name: "Canva", icon: null, category: "Design" },
+  { name: "Blender", icon: null, category: "Design" },
+  
+  // Frontend Technologies
+  { name: "HTML & CSS", icon: SiHtml5, category: "Frontend" },
+  { name: "JavaScript", icon: SiJavascript, category: "Frontend" },
+  { name: "TypeScript", icon: SiTypescript, category: "Frontend" },
+  { name: "React", icon: SiReact, category: "Frontend" },
+  { name: "Vue.js", icon: null, category: "Frontend" },
+  { name: "Angular", icon: null, category: "Frontend" },
+  { name: "Next.js", icon: null, category: "Frontend" },
+  { name: "Tailwind CSS", icon: null, category: "Frontend" },
+  { name: "Bootstrap", icon: null, category: "Frontend" },
+  { name: "Sass", icon: null, category: "Frontend" },
+  
+  // Backend Technologies
+  { name: "Node.js", icon: SiNodedotjs, category: "Backend" },
+  { name: "Python", icon: SiPython, category: "Backend" },
+  { name: "Express.js", icon: null, category: "Backend" },
+  { name: "Django", icon: null, category: "Backend" },
+  { name: "Flask", icon: null, category: "Backend" },
+  { name: "FastAPI", icon: null, category: "Backend" },
+  { name: "MongoDB", icon: null, category: "Backend" },
+  { name: "PostgreSQL", icon: null, category: "Backend" },
+  { name: "MySQL", icon: null, category: "Backend" },
+  { name: "Redis", icon: null, category: "Backend" },
+  
+  // DevOps & Tools
+  { name: "Git", icon: SiGit, category: "Tools" },
+  { name: "Docker", icon: SiDocker, category: "Tools" },
+  { name: "Kubernetes", icon: null, category: "Tools" },
+  { name: "AWS", icon: null, category: "Tools" },
+  { name: "Firebase", icon: null, category: "Tools" },
+  { name: "Vercel", icon: null, category: "Tools" },
+  { name: "Netlify", icon: null, category: "Tools" },
+  { name: "GitHub", icon: null, category: "Tools" },
+  { name: "VS Code", icon: null, category: "Tools" },
+  { name: "Postman", icon: null, category: "Tools" },
+  
+  // Design Skills
+  { name: "UI Design", icon: null, category: "Skills" },
+  { name: "UX Design", icon: null, category: "Skills" },
+  { name: "Prototyping", icon: null, category: "Skills" },
+  { name: "Wireframing", icon: null, category: "Skills" },
+  { name: "User Research", icon: null, category: "Skills" },
+  { name: "Design Systems", icon: null, category: "Skills" },
+  { name: "Responsive Design", icon: null, category: "Skills" },
+  { name: "Mobile Design", icon: null, category: "Skills" },
+  { name: "Web Design", icon: null, category: "Skills" },
+  { name: "Brand Design", icon: null, category: "Skills" },
+  
+  // Other Technologies
+  { name: "GraphQL", icon: null, category: "Other" },
+  { name: "REST API", icon: null, category: "Other" },
+  { name: "WebSocket", icon: null, category: "Other" },
+  { name: "PWA", icon: null, category: "Other" },
+  { name: "SEO", icon: null, category: "Other" },
+  { name: "Analytics", icon: null, category: "Other" },
+  { name: "Testing", icon: null, category: "Other" },
+  { name: "Accessibility", icon: null, category: "Other" },
+  { name: "Performance", icon: null, category: "Other" },
+  { name: "Security", icon: null, category: "Other" }
 ];
 
 const socialPlatforms = [
@@ -102,6 +160,8 @@ export default function AdminDashboard() {
   const [passwordData, setPasswordData] = useState({ current: "", new: "", confirm: "" });
   const [newSkill, setNewSkill] = useState({ name: "", icon: "" });
   const [newSocialLink, setNewSocialLink] = useState({ platform: "", url: "", icon: "" });
+  const [skillSearchOpen, setSkillSearchOpen] = useState(false);
+  const [skillSearchValue, setSkillSearchValue] = useState("");
 
   // Auth verification
   const { data: user, isLoading: authLoading, error: authError } = useQuery({
@@ -739,19 +799,80 @@ export default function AdminDashboard() {
                     </div>
 
                     <div>
-                      <Label htmlFor="skill-category">Available Icons</Label>
-                      <Select value={newSkill.icon} onValueChange={(value) => setNewSkill({ ...newSkill, icon: value })}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an icon (optional)" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableSkills.map((skill) => (
-                            <SelectItem key={skill.name} value={skill.name}>
-                              {skill.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="skill-category">Available Skills</Label>
+                      <Popover open={skillSearchOpen} onOpenChange={setSkillSearchOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={skillSearchOpen}
+                            className="w-full justify-between"
+                          >
+                            {newSkill.icon
+                              ? availableSkills.find((skill) => skill.name === newSkill.icon)?.name
+                              : "Select a skill..."}
+                            <svg
+                              className="ml-2 h-4 w-4 shrink-0 opacity-50"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="6,9 12,15 18,9"></polyline>
+                            </svg>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search skills..."
+                              value={skillSearchValue}
+                              onValueChange={setSkillSearchValue}
+                            />
+                            <CommandEmpty>No skill found.</CommandEmpty>
+                            <CommandList className="max-h-[300px]">
+                              {["Design", "Frontend", "Backend", "Tools", "Skills", "Other"].map((category) => {
+                                const categorySkills = availableSkills.filter(skill => skill.category === category);
+                                if (categorySkills.length === 0) return null;
+                                
+                                return (
+                                  <CommandGroup key={category} heading={category}>
+                                    {categorySkills.map((skill) => (
+                                      <CommandItem
+                                        key={skill.name}
+                                        value={skill.name}
+                                        onSelect={(currentValue) => {
+                                          setNewSkill({ 
+                                            ...newSkill, 
+                                            icon: currentValue === newSkill.icon ? "" : currentValue,
+                                            name: newSkill.name || currentValue
+                                          });
+                                          setSkillSearchOpen(false);
+                                          setSkillSearchValue("");
+                                        }}
+                                        className="flex items-center justify-between"
+                                      >
+                                        <div className="flex items-center">
+                                          {skill.icon && (
+                                            <skill.icon className="mr-2 h-4 w-4" />
+                                          )}
+                                          <span>{skill.name}</span>
+                                        </div>
+                                        {newSkill.icon === skill.name && (
+                                          <CheckCircle className="h-4 w-4" />
+                                        )}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                );
+                              })}
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     <Button 

@@ -21,6 +21,13 @@ const skillIcons: { [key: string]: any } = {
   "Adobe XD": SiAdobexd,
   "Photoshop": SiAdobephotoshop,
   "Premiere Pro": SiAdobepremierepro,
+  "React": SiReact,
+  "Node.js": SiNodedotjs,
+  "Python": SiPython,
+  "JavaScript": SiJavascript,
+  "TypeScript": SiTypescript,
+  "Git": SiGit,
+  "Docker": SiDocker,
 };
 
 export default function Hero() {
