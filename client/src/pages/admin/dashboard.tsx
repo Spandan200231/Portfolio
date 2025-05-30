@@ -29,7 +29,13 @@ import {
   TrendingUp,
   Activity,
   BookOpen,
-  PenTool
+  PenTool,
+  Star,
+  X,
+  Home,
+  LogOut,
+  Briefcase,
+  Share2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
@@ -112,7 +118,7 @@ const availableSkills = [
   { name: "Microsoft Office", icon: FileText },
   { name: "Word", icon: FileText },
   { name: "Excel", icon: Layout },
-  { name: "PowerPoint", icon: Presentation },
+  { name: "PowerPoint", icon: FileText },
   { name: "Notion", icon: SiNotion },
 ];
 
@@ -660,6 +666,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCaseStudyUpdate = (id: number, updates: any) => {
+    updateCaseStudy.mutate({ id, data: updates });
+  };
+
+  const handleCaseStudyDelete = (id: number) => {
+    if (confirm("Are you sure you want to delete this case study?")) {
+      deleteCaseStudy.mutate(id);
+    }
+  };
+
   const handlePortfolioUpdate = (id: number, updates: any) => {
     updatePortfolioItem.mutate({ id, data: updates });
   };
@@ -976,7 +992,7 @@ export default function AdminDashboard() {
                 <CardTitle>Contact Information</CardTitle>
               </CardHeader>
               <CardContent>
-            <form onSubmit{handleContactSubmit} className="space-y-4">
+            <form onSubmit={handleContactSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="contact-email">Email</Label>
                 <Input
