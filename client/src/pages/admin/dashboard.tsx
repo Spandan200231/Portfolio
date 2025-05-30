@@ -1620,6 +1620,15 @@ export default function AdminDashboard() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
+                                  onClick={() => handleCaseStudyUpdate(item.id, { published: !item.published })}
+                                  className={item.published ? "text-orange-600 hover:text-orange-700" : "text-green-600 hover:text-green-700"}
+                                  title={item.published ? "Unpublish case study" : "Publish case study"}
+                                >
+                                  {item.published ? <Eye className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   onClick={() => handleCaseStudyUpdate(item.id, { featured: !item.featured })}
                                 >
                                   <Star className={`h-4 w-4 ${item.featured ? "fill-current" : ""}`} />
