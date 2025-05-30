@@ -199,7 +199,7 @@ export class MongoStorage implements IStorage {
         linkedin: "https://www.linkedin.com/in/spandan-majumder-6b7b52366/",
         facebook: "https://www.facebook.com/profile.php?id=61576610008524",
         instagram: "https://www.instagram.com/uiux.spandan/?__pwa=1",
-        behance: "https://www.behance.net/spandanmaj
+        behance: "https://www.behance.net/spandanmajumder3"
       },
       miscellaneous: {
         heroTagline: "Creating meaningful digital experiences through thoughtful design and user-centered approaches.",
@@ -207,7 +207,8 @@ export class MongoStorage implements IStorage {
         copyrightText: "© 2025 Spandan Majumder. All rights reserved.",
         footerCopyright: "© 2025 Spandan Majumder. All rights reserved.",
         caseStudiesDescription: "Deep dives into my design process, challenges faced, and solutions delivered for complex user experience problems.",
-        portfolioDescription: "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms."umder3"
+        portfolioDescription: "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms."
+      }
       }
     };
 
