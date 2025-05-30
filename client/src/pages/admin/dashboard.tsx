@@ -48,7 +48,6 @@ import {
   SiNotion,
   SiMicrosoftoffice,
   SiMicrosoftword,
-  SiMicrosoftexcel,
   SiMicrosoftpowerpoint,
   SiCanva,
   SiFramer
@@ -91,7 +90,7 @@ const availableSkills = [
   { name: "Brand Design", icon: Pen },
   { name: "Microsoft Office", icon: SiMicrosoftoffice },
   { name: "Word", icon: SiMicrosoftword },
-  { name: "Excel", icon: SiMicrosoftexcel },
+  { name: "Excel", icon: Layout },
   { name: "PowerPoint", icon: SiMicrosoftpowerpoint },
   { name: "Notion", icon: SiNotion },
 ];

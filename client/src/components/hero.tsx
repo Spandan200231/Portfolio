@@ -29,7 +29,6 @@ import {
   SiNotion,
   SiMicrosoftoffice,
   SiMicrosoftword,
-  SiMicrosoftexcel,
   SiMicrosoftpowerpoint,
   SiCanva,
   SiFramer
@@ -72,7 +71,7 @@ const skillIcons: { [key: string]: any } = {
   "Brand Design": Pen,
   "Microsoft Office": SiMicrosoftoffice,
   "Word": SiMicrosoftword,
-  "Excel": SiMicrosoftexcel,
+  "Excel": Layout,
   "PowerPoint": SiMicrosoftpowerpoint,
   "Notion": SiNotion,
 };
