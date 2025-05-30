@@ -1,0 +1,258 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 10% 20%; /* #333333 equivalent for proper contrast */
+  --muted: 210 11% 97%; /* #F8F8F8 equivalent */
+  --muted-foreground: 215 16% 47%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 10% 20%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 10% 20%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --primary: 210 100% 56%; /* #007AFF */
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 11% 97%; /* #F8F8F8 */
+  --secondary-foreground: 210 30% 18%; /* #2D2D2D */
+  --accent: 210 100% 56%; /* #007AFF */
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 210 100% 56%;
+  --radius: 0.5rem;
+  
+  /* Custom portfolio colors */
+  --text-primary: 210 10% 20%; /* #333333 */
+  --text-secondary: 215 16% 47%;
+  --surface-primary: 0 0% 100%;
+  --surface-secondary: 210 11% 97%; /* #F8F8F8 */
+  --surface-tertiary: 210 30% 18%; /* #2D2D2D */
+  
+  /* Social media brand colors */
+  --linkedin: 207 90% 42%; /* #0A66C2 */
+  --facebook: 221 44% 41%; /* #1877F2 */
+  --behance: 232 100% 50%; /* #053EFF */
+}
+
+.dark {
+  --background: 222 84% 5%;
+  --foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --popover: 222 84% 5%;
+  --popover-foreground: 210 40% 98%;
+  --card: 222 84% 5%;
+  --card-foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --primary: 210 100% 56%;
+  --primary-foreground: 222 84% 5%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --accent: 210 100% 56%;
+  --accent-foreground: 222 84% 5%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 210 40% 98%;
+  --ring: 210 100% 56%;
+  
+  /* Custom portfolio colors for dark mode */
+  --text-primary: 210 40% 98%;
+  --text-secondary: 215 20% 65%;
+  --surface-primary: 222 84% 5%;
+  --surface-secondary: 217 33% 17%;
+  --surface-tertiary: 210 40% 98%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  /* Ensure proper text contrast */
+  .text-contrast {
+    color: hsl(var(--text-primary));
+  }
+
+  .text-contrast-secondary {
+    color: hsl(var(--text-secondary));
+  }
+
+  /* Social media brand colors */
+  .text-linkedin {
+    color: hsl(var(--linkedin));
+  }
+
+  .bg-linkedin {
+    background-color: hsl(var(--linkedin));
+  }
+
+  .text-facebook {
+    color: hsl(221 44% 41%); /* #1877F2 */
+  }
+
+  .bg-facebook {
+    background-color: hsl(221 44% 41%);
+  }
+
+  .text-behance {
+    color: hsl(var(--behance));
+  }
+
+  .bg-behance {
+    background-color: hsl(var(--behance));
+  }
+
+  .bg-instagram {
+    background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+  }
+
+  /* Custom spacing */
+  .spacing-24 {
+    padding: 24px;
+  }
+
+  .gap-24 {
+    gap: 24px;
+  }
+
+  /* Smooth transitions */
+  .transition-all-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Portfolio-specific animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent));
+  }
+
+  /* Focus styles for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .glass {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@layer components {
+  /* Navigation styles */
+  .nav-link {
+    @apply text-contrast hover:text-accent transition-colors duration-200 font-medium;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 px-6 py-3 rounded-lg font-medium transition-all-smooth;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 px-6 py-3 rounded-lg font-medium transition-all-smooth;
+  }
+
+  /* Card styles */
+  .portfolio-card {
+    @apply bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all-smooth hover-lift;
+  }
+
+  /* Text styles with proper contrast */
+  .heading-primary {
+    @apply text-4xl lg:text-5xl font-bold text-contrast leading-tight;
+  }
+
+  .heading-secondary {
+    @apply text-2xl lg:text-3xl font-semibold text-contrast;
+  }
+
+  .body-text {
+    @apply text-contrast-secondary leading-relaxed;
+  }
+
+  /* Social link styles */
+  .social-link {
+    @apply p-3 rounded-lg text-white transition-transform duration-200 hover:scale-105 focus-ring;
+  }
+
+  /* Form styles */
+  .form-input {
+    @apply w-full px-4 py-3 border border-input rounded-lg bg-background text-contrast focus:ring-2 focus:ring-accent focus:border-transparent transition-all;
+  }
+
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  .heading-primary {
+    @apply text-3xl;
+  }
+  
+  .heading-secondary {
+    @apply text-xl;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none;
+  }
+}
