@@ -46,7 +46,6 @@ import {
   SiInvision,
   SiMiro,
   SiNotion,
-  SiMicrosoftoffice,
   SiMicrosoftword,
   SiMicrosoftpowerpoint,
   SiCanva,
@@ -58,7 +57,8 @@ import {
   Layout,
   Layers,
   PenTool,
-  Users
+  Users,
+  FileText
 } from "lucide-react";
 
 const availableSkills = [
@@ -88,7 +88,7 @@ const availableSkills = [
   { name: "Prototyping", icon: Layers },
   { name: "Wireframing", icon: PenTool },
   { name: "Brand Design", icon: Pen },
-  { name: "Microsoft Office", icon: SiMicrosoftoffice },
+  { name: "Microsoft Office", icon: FileText },
   { name: "Word", icon: SiMicrosoftword },
   { name: "Excel", icon: Layout },
   { name: "PowerPoint", icon: SiMicrosoftpowerpoint },
