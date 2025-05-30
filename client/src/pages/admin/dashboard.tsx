@@ -8,7 +8,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, Search } from "lucide-react";
+import { 
+  Trash2, 
+  Plus, 
+  Search, 
+  User, 
+  Mail, 
+  Share2, 
+  Settings, 
+  LogOut,
+  Home,
+  FileText,
+  Briefcase
+} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -100,6 +112,7 @@ export default function AdminDashboard() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [skillSearch, setSkillSearch] = useState("");
   const [openSkillPopover, setOpenSkillPopover] = useState(false);
+  const [activeSection, setActiveSection] = useState("hero");
 
   // Fetch hero content
   const { data: heroData, isLoading: heroLoading } = useQuery({
@@ -240,6 +253,11 @@ export default function AdminDashboard() {
     !selectedSkills.includes(skill.name)
   );
 
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    window.location.href = "/admin/login";
+  };
+
   React.useEffect(() => {
     if (heroData?.content?.skills) {
       setSelectedSkills(heroData.content.skills.map((skill: any) => skill.name));
@@ -261,16 +279,101 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-64 bg-card border-r border-border flex flex-col">
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-border">
+          <h2 className="text-xl font-bold text-contrast">Admin Panel</h2>
+          <p className="text-sm text-contrast-secondary">Portfolio Management</p>
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Hero Content */}
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            <button
+              onClick={() => setActiveSection("hero")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "hero" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <User className="h-4 w-4" />
+              <span>Hero Section</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveSection("contact")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "contact" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <Mail className="h-4 w-4" />
+              <span>Contact Info</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveSection("social")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "social" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <Share2 className="h-4 w-4" />
+              <span>Social Links</span>
+            </button>
+
+            <div className="border-t border-border my-4"></div>
+            
+            <button
+              onClick={() => window.open("/", "_blank")}
+              className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors text-contrast hover:bg-accent/10"
+            >
+              <Home className="h-4 w-4" />
+              <span>View Site</span>
+            </button>
+          </div>
+        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-border">
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            className="w-full justify-start text-contrast hover:bg-accent/10"
+          >
+            <LogOut className="h-4 w-4 mr-3" />
+            Logout
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-6">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-contrast">
+              {activeSection === "hero" && "Hero Section"}
+              {activeSection === "contact" && "Contact Information"}
+              {activeSection === "social" && "Social Media Links"}
+            </h1>
+            <p className="text-contrast-secondary mt-2">
+              {activeSection === "hero" && "Manage your personal information and skills"}
+              {activeSection === "contact" && "Update your contact details"}
+              {activeSection === "social" && "Configure your social media presence"}
+            </p>
+          </div>
+
+          {activeSection === "hero" && (
         <Card>
-          <CardHeader>
-            <CardTitle>Hero Section</CardTitle>
-          </CardHeader>
-          <CardContent>
+              <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+              </CardHeader>
+              <CardContent>
             <form onSubmit={handleHeroSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="name">Name</Label>
@@ -370,18 +473,19 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <Button type="submit" disabled={updateHeroMutation.isPending}>
-                {updateHeroMutation.isPending ? "Updating..." : "Update Hero"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  {updateHeroMutation.isPending ? "Updating..." : "Update Hero"}
+                </Button>
+              </form>
+            </CardContent>
+            </Card>
+          )}
 
-        {/* Contact Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-          </CardHeader>
-          <CardContent>
+          {activeSection === "contact" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent>
             <form onSubmit={handleContactSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="contact-email">Email</Label>
@@ -410,18 +514,19 @@ export default function AdminDashboard() {
                 />
               </div>
               <Button type="submit" disabled={updateContactMutation.isPending}>
-                {updateContactMutation.isPending ? "Updating..." : "Update Contact"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  {updateContactMutation.isPending ? "Updating..." : "Update Contact"}
+                </Button>
+              </form>
+            </CardContent>
+            </Card>
+          )}
 
-        {/* Social Links */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Social Media Links</CardTitle>
-          </CardHeader>
-          <CardContent>
+          {activeSection === "social" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Social Media Links</CardTitle>
+              </CardHeader>
+              <CardContent>
             <form onSubmit={handleSocialSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="linkedin">LinkedIn URL</Label>
@@ -460,11 +565,13 @@ export default function AdminDashboard() {
                 />
               </div>
               <Button type="submit" disabled={updateSocialMutation.isPending}>
-                {updateSocialMutation.isPending ? "Updating..." : "Update Social Links"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  {updateSocialMutation.isPending ? "Updating..." : "Update Social Links"}
+                </Button>
+              </form>
+            </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
