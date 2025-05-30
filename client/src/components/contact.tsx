@@ -42,9 +42,9 @@ const contactSchema = z.object({
 type ContactForm = z.infer<typeof contactSchema>;
 
 export default function Contact() {
+  const { toast } = useToast();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-  const { toast } = useToast();
 
   const { data: contactContent, refetch: refetchContact } = useQuery({
     queryKey: ["/api/content/contact"],
@@ -66,11 +66,22 @@ export default function Contact() {
     refetchIntervalInBackground: true,
   });
 
+  const { data: miscData, refetch: refetchMisc } = useQuery({
+    queryKey: ["/api/content/miscellaneous"],
+    staleTime: 0,
+    gcTime: 0,
+    refetchInterval: 3000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchIntervalInBackground: true,
+  });
+
   // Force refetch on component mount
   useEffect(() => {
     refetchContact();
     refetchSocial();
-  }, [refetchContact, refetchSocial]);
+    refetchMisc();
+  }, [refetchContact, refetchSocial, refetchMisc]);
 
   const form = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
@@ -489,6 +500,11 @@ export default function Contact() {
             </Card>
           </div>
         </div>
+      </div>
+      <div className="text-center mt-8">
+        <p className="text-contrast-secondary text-sm">
+          {miscData?.content?.copyrightText || "© 2025 Spandan Majumder. All rights reserved."}
+        </p>
       </div>
     </section>
   );

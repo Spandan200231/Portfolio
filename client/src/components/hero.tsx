@@ -84,6 +84,10 @@ export default function Hero() {
     queryKey: ["/api/content/social"],
   });
 
+  const { data: miscData } = useQuery({
+    queryKey: ["/api/content/miscellaneous"],
+  });
+
   const isLoading = heroLoading || socialLoading;
 
   const scrollToContact = () => {

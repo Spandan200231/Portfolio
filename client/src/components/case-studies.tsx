@@ -13,6 +13,10 @@ export default function CaseStudies() {
     queryKey: ["/api/case-studies"],
   });
 
+  const { data: miscData } = useQuery({
+    queryKey: ["/api/content/miscellaneous"],
+  });
+
   if (error) {
     return (
       <section id="case-studies" className="py-20 bg-background">
@@ -37,7 +41,7 @@ export default function CaseStudies() {
         <div className="text-center mb-16 animate-fade-in-up">
           <h2 className="heading-secondary mb-6">Case Studies</h2>
           <p className="body-text max-w-2xl mx-auto">
-            Deep dives into my design process, challenges faced, and solutions delivered for complex user experience problems.
+            {miscData?.content?.caseStudiesDescription || "Deep dives into my design process, challenges faced, and solutions delivered for complex user experience problems."}
           </p>
         </div>
 

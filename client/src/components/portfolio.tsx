@@ -14,6 +14,10 @@ export default function Portfolio() {
     queryKey: ["/api/content/social"],
   });
 
+  const { data: miscData } = useQuery({
+    queryKey: ["/api/content/miscellaneous"],
+  });
+
   const behanceUrl = socialContent?.content?.behance || "https://www.behance.net/spandanmajumder3";
 
   if (error) {
@@ -40,7 +44,7 @@ export default function Portfolio() {
         <div className="text-center mb-16 animate-fade-in-up">
           <h2 className="heading-secondary mb-6">Featured Work</h2>
           <p className="body-text max-w-2xl mx-auto mb-8">
-            A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms.
+            {miscData?.content?.portfolioDescription || "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms."}
           </p>
         </div>
 

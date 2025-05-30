@@ -1,19 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  SiLinkedin, 
-  SiFacebook, 
-  SiInstagram, 
-  SiBehance 
-} from "react-icons/si";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Mail, Heart } from "lucide-react";
+import { SiLinkedin, SiFacebook, SiInstagram, SiBehance } from "react-icons/si";
 
 export default function Footer() {
-  const { data: socialContent, isLoading } = useQuery({
+  const { data: socialData } = useQuery({
     queryKey: ["/api/content/social"],
   });
 
-  const { data: heroContent } = useQuery({
-    queryKey: ["/api/content/hero"],
+  const { data: miscData } = useQuery({
+    queryKey: ["/api/content/miscellaneous"],
   });
 
   const scrollToSection = (sectionId: string) => {
@@ -23,49 +20,19 @@ export default function Footer() {
     }
   };
 
-  const socialData = socialContent?.content || {
+  const socialContent = socialData?.content || {
     linkedin: "https://www.linkedin.com/in/spandan-majumder-6b7b52366/",
     facebook: "https://www.facebook.com/profile.php?id=61576610008524",
     instagram: "https://www.instagram.com/uiux.spandan/?__pwa=1",
     behance: "https://www.behance.net/spandanmajumder3"
   };
 
-  const designerName = heroContent?.content?.name || "Spandan Majumder";
-
-  if (isLoading) {
-    return (
-      <footer className="bg-primary text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <Skeleton className="h-6 w-48 mb-4 bg-white/20" />
-              <Skeleton className="h-4 w-full mb-2 bg-white/10" />
-              <Skeleton className="h-4 w-3/4 bg-white/10" />
-            </div>
-            <div>
-              <Skeleton className="h-5 w-24 mb-4 bg-white/20" />
-              <div className="space-y-2">
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-4 w-20 bg-white/10" />
-                ))}
-              </div>
-            </div>
-            <div>
-              <Skeleton className="h-5 w-20 mb-4 bg-white/20" />
-              <div className="flex space-x-4 mb-4">
-                {[...Array(4)].map((_, i) => (
-                  <Skeleton key={i} className="h-10 w-10 bg-white/10" />
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 pt-8 mt-8 text-center">
-            <Skeleton className="h-4 w-64 mx-auto bg-white/10" />
-          </div>
-        </div>
-      </footer>
-    );
-  }
+  const miscContent = miscData?.content || {
+    footerCopyright: "© 2025 Spandan Majumder. All rights reserved.",
+    footerText: "Available for freelance projects and collaborations.",
+    heroTitle: "Spandan Majumder",
+    heroSubtitle: "Creating meaningful digital experiences through thoughtful design and user-centered approaches."
+  };
 
   return (
     <footer className="bg-primary text-white py-12">
@@ -73,9 +40,9 @@ export default function Footer() {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Brand & Description */}
           <div>
-            <h3 className="text-xl font-semibold mb-4">{designerName}</h3>
+            <h3 className="text-xl font-semibold mb-4">{miscContent.heroTitle}</h3>
             <p className="text-gray-300 leading-relaxed">
-              Creating meaningful digital experiences through thoughtful design and user-centered approaches.
+              {miscContent.heroSubtitle}
             </p>
           </div>
 
@@ -123,7 +90,7 @@ export default function Footer() {
             <h4 className="font-medium mb-4">Connect</h4>
             <div className="flex space-x-4 mb-4">
               <a
-                href={socialData.linkedin}
+                href={socialContent.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
@@ -132,7 +99,7 @@ export default function Footer() {
                 <SiLinkedin className="h-5 w-5" />
               </a>
               <a
-                href={socialData.behance}
+                href={socialContent.behance}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
@@ -141,7 +108,7 @@ export default function Footer() {
                 <SiBehance className="h-5 w-5" />
               </a>
               <a
-                href={socialData.instagram}
+                href={socialContent.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
@@ -150,7 +117,7 @@ export default function Footer() {
                 <SiInstagram className="h-5 w-5" />
               </a>
               <a
-                href={socialData.facebook}
+                href={socialContent.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
@@ -160,14 +127,14 @@ export default function Footer() {
               </a>
             </div>
             <p className="text-gray-400 text-sm">
-              Available for freelance projects and collaborations.
+              {miscContent.footerText}
             </p>
           </div>
         </div>
 
         {/* Copyright */}
         <div className="border-t border-gray-700 pt-8 mt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} {designerName}. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {miscContent.heroTitle}. All rights reserved.</p>
         </div>
       </div>
     </footer>

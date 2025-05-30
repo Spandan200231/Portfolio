@@ -201,6 +201,11 @@ export default function AdminDashboard() {
     queryKey: ["/api/content/social"],
   });
 
+  // Fetch miscellaneous content
+  const { data: miscData, isLoading: miscLoading } = useQuery({
+    queryKey: ["/api/content/miscellaneous"],
+  });
+
   const { data: contactMessages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ["/api/contact/messages"],
     queryFn: async () => {
@@ -287,6 +292,30 @@ export default function AdminDashboard() {
     },
     onError: () => {
       toast({ title: "Failed to update social content", variant: "destructive" });
+    },
+  });
+
+  // Miscellaneous content mutation
+  const updateMiscMutation = useMutation({
+    mutationFn: async (content: any) => {
+      const token = localStorage.getItem("portfolio_admin_token");
+      const response = await fetch("/api/content/miscellaneous", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) throw new Error("Failed to update miscellaneous content");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/content/miscellaneous"] });
+      toast({ title: "Miscellaneous content updated successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update miscellaneous content", variant: "destructive" });
     },
   });
 
@@ -622,6 +651,21 @@ export default function AdminDashboard() {
     updateSocialMutation.mutate(content);
   };
 
+  // Miscellaneous form helpers
+  const handleMiscSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const content = {
+      heroTagline: formData.get("heroTagline"),
+      availabilityText: formData.get("availabilityText"),
+      copyrightText: formData.get("copyrightText"),
+      footerCopyright: formData.get("footerCopyright"),
+      caseStudiesDescription: formData.get("caseStudiesDescription"),
+      portfolioDescription: formData.get("portfolioDescription"),
+    };
+    updateMiscMutation.mutate(content);
+  };
+
   // Portfolio form helpers
   const resetPortfolioForm = () => {
     setPortfolioForm({
@@ -815,7 +859,7 @@ export default function AdminDashboard() {
     }
   }, [heroData]);
 
-  if (heroLoading || contactLoading || socialLoading || portfolioLoading) {
+  if (heroLoading || contactLoading || socialLoading || portfolioLoading || miscLoading) {
     return (
       <div className="container mx-auto p-6">
         <div className="space-y-6">
@@ -921,6 +965,19 @@ export default function AdminDashboard() {
               )}
             </button>
 
+            {/* Miscellaneous Tab */}
+            <button
+              onClick={() => setActiveSection("miscellaneous")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "miscellaneous" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              <span>Miscellaneous</span>
+            </button>
+
             <div className="border-t border-border my-4"></div>
 
             <button
@@ -957,6 +1014,7 @@ export default function AdminDashboard() {
               {activeSection === "portfolio" && "Portfolio Management"}
               {activeSection === "case-studies" && "Case Studies Management"}
               {activeSection === "messages" && "Contact Messages"}
+              {activeSection === "miscellaneous" && "Miscellaneous Content"}
             </h1>
             <p className="text-contrast-secondary mt-2">
               {activeSection === "hero" && "Manage your personal information and skills"}
@@ -965,6 +1023,7 @@ export default function AdminDashboard() {
               {activeSection === "portfolio" && "Manage your portfolio items and featured work"}
               {activeSection === "case-studies" && "Manage your case studies for UI/UX and graphics design"}
               {activeSection === "messages" && "View and manage contact form submissions"}
+              {activeSection === "miscellaneous" && "Manage various text content throughout the website"}
             </p>
           </div>
 
@@ -1892,6 +1951,93 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+          )}
+
+          {activeSection === "miscellaneous" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Miscellaneous Content</CardTitle>
+                <CardDescription>
+                  Manage various text content displayed throughout the website
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleMiscSubmit} className="space-y-6">
+                  <div>
+                    <Label htmlFor="heroTagline">Hero Section Tagline</Label>
+                    <Textarea
+                      id="heroTagline"
+                      name="heroTagline"
+                      defaultValue={miscData?.content?.heroTagline || "Creating meaningful digital experiences through thoughtful design and user-centered approaches."}
+                      rows={2}
+                      placeholder="Enter hero section tagline"
+                    />
+                    <p className="text-sm text-contrast-secondary mt-1">Displayed below the main introduction on the hero section</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="availabilityText">Availability Text</Label>
+                    <Input
+                      id="availabilityText"
+                      name="availabilityText"
+                      defaultValue={miscData?.content?.availabilityText || "Available for freelance projects and collaborations."}
+                      placeholder="Enter availability text"
+                    />
+                    <p className="text-sm text-contrast-secondary mt-1">Displayed in the hero/contact section</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="copyrightText">Copyright Text (Contact Section)</Label>
+                    <Input
+                      id="copyrightText"
+                      name="copyrightText"
+                      defaultValue={miscData?.content?.copyrightText || "© 2025 Spandan Majumder. All rights reserved."}
+                      placeholder="Enter copyright text"
+                    />
+                    <p className="text-sm text-contrast-secondary mt-1">Displayed in the contact section</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="footerCopyright">Footer Copyright Text</Label>
+                    <Input
+                      id="footerCopyright"
+                      name="footerCopyright"
+                      defaultValue={miscData?.content?.footerCopyright || "© 2025 Spandan Majumder. All rights reserved."}
+                      placeholder="Enter footer copyright text"
+                    />
+                    <p className="text-sm text-contrast-secondary mt-1">Displayed in the footer</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="caseStudiesDescription">Case Studies Section Description</Label>
+                    <Textarea
+                      id="caseStudiesDescription"
+                      name="caseStudiesDescription"
+                      defaultValue={miscData?.content?.caseStudiesDescription || "Deep dives into my design process, challenges faced, and solutions delivered for complex user experience problems."}
+                      rows={3}
+                      placeholder="Enter case studies section description"
+                    />
+                    <p className="text-sm text-contrast-secondary mt-1">Displayed in the case studies section</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="portfolioDescription">Portfolio Section Description</Label>
+                    <Textarea
+                      id="portfolioDescription"
+                      name="portfolioDescription"
+                      defaultValue={miscData?.content?.portfolioDescription || "A curated selection of my recent projects showcasing user-centered design solutions across various digital platforms."}
+                      rows={3}
+                      placeholder="Enter portfolio section description"
+                    />
+                    <p className="text-sm text-contrast-secondary mt-1">Displayed in the portfolio section</p>
+                  </div>
+
+                  <Button type="submit" disabled={updateMiscMutation.isPending}>
+                    {updateMiscMutation.isPending ? "Updating..." : "Update Miscellaneous Content"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
