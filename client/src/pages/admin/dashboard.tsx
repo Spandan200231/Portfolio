@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,6 @@ import {
   SiAdobeaftereffects,
   SiSketch,
   SiInvision,
-  SiMarvel,
   SiMiro,
   SiNotion,
   SiMicrosoft,
@@ -85,7 +83,7 @@ const availableSkills = [
   { name: "Canva", icon: SiCanva },
   { name: "Framer", icon: SiFramer },
   { name: "InVision", icon: SiInvision },
-  { name: "Marvel", icon: SiMarvel },
+  { name: "Marvel", icon: PenTool },
   { name: "Miro", icon: SiMiro },
   { name: "UI Design", icon: Layout },
   { name: "UX Design", icon: Users },
