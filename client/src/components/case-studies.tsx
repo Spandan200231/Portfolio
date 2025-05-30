@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Tag, AlertCircle, BookOpen } from "lucide-react";
 
 export default function CaseStudies() {
   const [, setLocation] = useLocation();
-  
+
   const { data: caseStudies = [], isLoading, error } = useQuery({
     queryKey: ["/api/case-studies"],
   });
@@ -82,17 +82,17 @@ export default function CaseStudies() {
                     <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
                       {study.category || "UX Case Study"}
                     </Badge>
-                    
+
                     <h3 className="text-3xl font-bold text-contrast hover:text-accent transition-colors">
                       {study.title}
                     </h3>
-                    
+
                     {study.subtitle && (
                       <p className="text-lg text-accent font-medium">
                         {study.subtitle}
                       </p>
                     )}
-                    
+
                     <p className="body-text leading-relaxed">
                       {study.description || "A comprehensive design case study showcasing the complete design process from research to final implementation."}
                     </p>
@@ -106,7 +106,7 @@ export default function CaseStudies() {
                         <span>{study.duration}</span>
                       </div>
                     )}
-                    
+
                     {study.tags && study.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {study.tags.slice(0, 4).map((tag: string, tagIndex: number) => (
@@ -130,13 +130,13 @@ export default function CaseStudies() {
                 <div className={`relative ${index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
                   <div className="relative group">
                     <img
-                      src={study.imageUrl || `https://images.unsplash.com/photo-${index % 2 === 0 ? '1551288049-bebda4e38f71' : '1522202176988-66273c2fd55f'}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600`}
+                      src={study.imageUrl || "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"}
                       alt={study.title}
                       className="rounded-xl shadow-2xl w-full h-80 object-cover group-hover:shadow-3xl transition-shadow duration-300"
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
+
                     {/* Overlay Button */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <Button
@@ -148,7 +148,7 @@ export default function CaseStudies() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {study.featured && (
                     <Badge className="absolute top-4 right-4 bg-accent text-white shadow-lg">
                       Featured
