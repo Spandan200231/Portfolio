@@ -1986,16 +1986,7 @@ export default function AdminDashboard() {
                     <p className="text-sm text-contrast-secondary mt-1">Displayed in the hero/contact section</p>
                   </div>
 
-                  <div>
-                    <Label htmlFor="copyrightText">Copyright Text (Contact Section)</Label>
-                    <Input
-                      id="copyrightText"
-                      name="copyrightText"
-                      defaultValue={miscData?.content?.copyrightText || "© 2025 Spandan Majumder. All rights reserved."}
-                      placeholder="Enter copyright text"
-                    />
-                    <p className="text-sm text-contrast-secondary mt-1">Displayed in the contact section</p>
-                  </div>
+                  
 
                   <div>
                     <Label htmlFor="footerCopyright">Footer Copyright Text</Label>

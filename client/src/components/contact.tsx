@@ -501,11 +501,6 @@ export default function Contact() {
           </div>
         </div>
       </div>
-      <div className="text-center mt-8">
-        <p className="text-contrast-secondary text-sm">
-          {miscData?.content?.copyrightText || "© 2025 Spandan Majumder. All rights reserved."}
-        </p>
-      </div>
     </section>
   );
 }
