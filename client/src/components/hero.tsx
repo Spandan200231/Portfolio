@@ -28,7 +28,6 @@ import {
   SiMiro,
   SiNotion,
   SiMicrosoftword,
-  SiMicrosoftpowerpoint,
   SiCanva,
   SiFramer
 } from "react-icons/si";
@@ -39,7 +38,8 @@ import {
   Layers,
   PenTool,
   Users,
-  FileText
+  FileText,
+  Presentation
 } from "lucide-react";
 
 const skillIcons: { [key: string]: any } = {
@@ -72,7 +72,7 @@ const skillIcons: { [key: string]: any } = {
   "Microsoft Office": FileText,
   "Word": SiMicrosoftword,
   "Excel": Layout,
-  "PowerPoint": SiMicrosoftpowerpoint,
+  "PowerPoint": Presentation,
   "Notion": SiNotion,
 };
 

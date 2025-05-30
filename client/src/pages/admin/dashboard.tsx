@@ -47,7 +47,6 @@ import {
   SiMiro,
   SiNotion,
   SiMicrosoftword,
-  SiMicrosoftpowerpoint,
   SiCanva,
   SiFramer
 } from "react-icons/si";
@@ -58,7 +57,8 @@ import {
   Layers,
   PenTool,
   Users,
-  FileText
+  FileText,
+  Presentation
 } from "lucide-react";
 
 const availableSkills = [
@@ -91,7 +91,7 @@ const availableSkills = [
   { name: "Microsoft Office", icon: FileText },
   { name: "Word", icon: SiMicrosoftword },
   { name: "Excel", icon: Layout },
-  { name: "PowerPoint", icon: SiMicrosoftpowerpoint },
+  { name: "PowerPoint", icon: Presentation },
   { name: "Notion", icon: SiNotion },
 ];
 
