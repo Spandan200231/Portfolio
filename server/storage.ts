@@ -55,7 +55,24 @@ async function initializeIndexes(db: Db) {
   try {
     // Create indexes for better query performance
     await db.collection("users").createIndex({ email: 1 }, { unique: true });
-    await db.collection("portfolioItems").createIndex({ behanceId: 1 }, { unique: true, sparse: true });
+    
+    // Drop existing behanceId index if it exists
+    try {
+      await db.collection("portfolioItems").dropIndex("behanceId_1");
+    } catch (dropError) {
+      // Index might not exist, which is fine
+    }
+    
+    // Create new sparse unique index for behanceId (allows multiple null values)
+    await db.collection("portfolioItems").createIndex(
+      { behanceId: 1 }, 
+      { 
+        unique: true, 
+        sparse: true,
+        partialFilterExpression: { behanceId: { $type: "string" } }
+      }
+    );
+    
     await db.collection("portfolioItems").createIndex({ featured: 1 });
     await db.collection("caseStudies").createIndex({ slug: 1 }, { unique: true });
     await db.collection("caseStudies").createIndex({ published: 1 });
@@ -279,11 +296,10 @@ export class MongoStorage implements IStorage {
       const id = this.currentPortfolioId++;
       const now = new Date();
       
-      const item: PortfolioItem = {
+      const item: any = {
         id,
         title: insertItem.title,
         imageUrl: insertItem.imageUrl,
-        behanceId: insertItem.behanceId || null,
         description: insertItem.description || null,
         projectUrl: insertItem.projectUrl || null,
         tags: insertItem.tags || null,
@@ -293,8 +309,13 @@ export class MongoStorage implements IStorage {
         updatedAt: now,
       };
 
+      // Only include behanceId if it's provided and not empty
+      if (insertItem.behanceId && insertItem.behanceId.trim()) {
+        item.behanceId = insertItem.behanceId;
+      }
+
       await db.collection("portfolioItems").insertOne(item);
-      return item;
+      return { ...item, behanceId: item.behanceId || null } as PortfolioItem;
     } catch (error) {
       console.error("Error creating portfolio item:", error);
       throw error;
