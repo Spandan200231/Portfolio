@@ -1,33 +1,40 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { 
+  Edit3, 
   Trash2, 
   Plus, 
-  Search, 
+  Upload, 
+  ExternalLink, 
+  Settings, 
+  FileText, 
   User, 
   Mail, 
-  Share2, 
-  Settings, 
-  LogOut,
-  Home,
-  FileText,
-  Briefcase,
-  Upload,
-  X,
-  Image,
-  ExternalLink,
-  Star
+  Calendar,
+  BarChart3,
+  Eye,
+  MessageCircle,
+  Users,
+  TrendingUp,
+  Activity,
+  BookOpen,
+  PenTool
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
+import type { PortfolioItem, ContactMessage, SiteContent, InsertPortfolioItem, CaseStudy, InsertCaseStudy } from "@shared/schema";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Command,
   CommandEmpty,
@@ -73,9 +80,6 @@ import {
   Pen,
   Layout,
   Layers,
-  PenTool,
-  Users,
-  Presentation
 } from "lucide-react";
 
 const availableSkills = [
@@ -124,6 +128,47 @@ export default function AdminDashboard() {
   const [portfolioImage, setPortfolioImage] = useState<File | null>(null);
   const [portfolioImagePreview, setPortfolioImagePreview] = useState<string>("");
 
+  // Portfolio state
+  const [isPortfolioDialogOpen, setIsPortfolioDialogOpen] = useState(false);
+  const [editingPortfolioItem, setEditingPortfolioItem] = useState<PortfolioItem | null>(null);
+  const [portfolioForm, setPortfolioForm] = useState({
+    title: "",
+    description: "",
+    imageUrl: "",
+    projectUrl: "",
+    tags: "",
+    category: "",
+    featured: false,
+  });
+
+  // Case Studies state
+  const [isCaseStudyDialogOpen, setIsCaseStudyDialogOpen] = useState(false);
+  const [editingCaseStudy, setEditingCaseStudy] = useState<CaseStudy | null>(null);
+  const [caseStudyForm, setCaseStudyForm] = useState({
+    slug: "",
+    title: "",
+    subtitle: "",
+    description: "",
+    content: "",
+    imageUrl: "",
+    duration: "",
+    category: "",
+    tags: "",
+    featured: false,
+    published: false,
+  });
+
+  const token = localStorage.getItem("portfolio_admin_token");
+
+  // Fetch data
+  const { data: portfolioItems = [], isLoading: portfolioLoading } = useQuery({
+    queryKey: ["/api/portfolio"],
+  });
+
+  const { data: caseStudies = [], isLoading: caseStudiesLoading } = useQuery({
+    queryKey: ["/api/case-studies/all"],
+  });
+
   // Fetch hero content
   const { data: heroData, isLoading: heroLoading } = useQuery({
     queryKey: ["/api/content/hero"],
@@ -139,9 +184,12 @@ export default function AdminDashboard() {
     queryKey: ["/api/content/social"],
   });
 
-  // Fetch portfolio items
-  const { data: portfolioItems = [], isLoading: portfolioLoading } = useQuery({
-    queryKey: ["/api/portfolio"],
+  const { data: contactMessages = [], isLoading: messagesLoading } = useQuery({
+    queryKey: ["/api/contact/messages"],
+  });
+
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ["/api/analytics"],
   });
 
   // Hero content mutation
@@ -222,7 +270,7 @@ export default function AdminDashboard() {
       const token = localStorage.getItem("portfolio_admin_token");
       const formData = new FormData();
       formData.append("image", file);
-      
+
       const response = await fetch("/api/upload/hero-image", {
         method: "POST",
         headers: {
@@ -230,7 +278,7 @@ export default function AdminDashboard() {
         },
         body: formData,
       });
-      
+
       if (!response.ok) throw new Error("Failed to upload image");
       return response.json();
     },
@@ -250,7 +298,7 @@ export default function AdminDashboard() {
       const token = localStorage.getItem("portfolio_admin_token");
       const formData = new FormData();
       formData.append("image", file);
-      
+
       const response = await fetch("/api/upload/portfolio-image", {
         method: "POST",
         headers: {
@@ -258,7 +306,7 @@ export default function AdminDashboard() {
         },
         body: formData,
       });
-      
+
       if (!response.ok) throw new Error("Failed to upload image");
       return response.json();
     },
@@ -273,9 +321,8 @@ export default function AdminDashboard() {
   });
 
   // Portfolio mutations
-  const createPortfolioMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const token = localStorage.getItem("portfolio_admin_token");
+  const createPortfolioItem = useMutation({
+    mutationFn: async (data: InsertPortfolioItem) => {
       const response = await fetch("/api/portfolio", {
         method: "POST",
         headers: {
@@ -284,21 +331,26 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error("Failed to create portfolio item");
+
+      if (!response.ok) {
+        throw new Error("Failed to create portfolio item");
+      }
+
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
-      toast({ title: "Portfolio item created successfully!" });
+      setIsPortfolioDialogOpen(false);
+      resetPortfolioForm();
+      toast({ title: "Portfolio item created successfully" });
     },
     onError: () => {
       toast({ title: "Failed to create portfolio item", variant: "destructive" });
     },
   });
 
-  const updatePortfolioMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const token = localStorage.getItem("portfolio_admin_token");
+  const updatePortfolioItem = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertPortfolioItem> }) => {
       const response = await fetch(`/api/portfolio/${id}`, {
         method: "PUT",
         headers: {
@@ -307,39 +359,132 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error("Failed to update portfolio item");
+
+      if (!response.ok) {
+        throw new Error("Failed to update portfolio item");
+      }
+
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
-      toast({ title: "Portfolio item updated successfully!" });
+      setIsPortfolioDialogOpen(false);
+      setEditingPortfolioItem(null);
+      resetPortfolioForm();
+      toast({ title: "Portfolio item updated successfully" });
     },
     onError: () => {
       toast({ title: "Failed to update portfolio item", variant: "destructive" });
     },
   });
 
-  const deletePortfolioMutation = useMutation({
+  const deletePortfolioItem = useMutation({
     mutationFn: async (id: number) => {
-      const token = localStorage.getItem("portfolio_admin_token");
       const response = await fetch(`/api/portfolio/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error("Failed to delete portfolio item");
+
+      if (!response.ok) {
+        throw new Error("Failed to delete portfolio item");
+      }
+
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
-      toast({ title: "Portfolio item deleted successfully!" });
+      toast({ title: "Portfolio item deleted successfully" });
     },
     onError: () => {
       toast({ title: "Failed to delete portfolio item", variant: "destructive" });
     },
   });
 
+  // Case Study mutations
+  const createCaseStudy = useMutation({
+    mutationFn: async (data: InsertCaseStudy) => {
+      const response = await fetch("/api/case-studies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create case study");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/case-studies/all"] });
+      setIsCaseStudyDialogOpen(false);
+      resetCaseStudyForm();
+      toast({ title: "Case study created successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to create case study", variant: "destructive" });
+    },
+  });
+
+  const updateCaseStudy = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertCaseStudy> }) => {
+      const response = await fetch(`/api/case-studies/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update case study");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/case-studies/all"] });
+      setIsCaseStudyDialogOpen(false);
+      setEditingCaseStudy(null);
+      resetCaseStudyForm();
+      toast({ title: "Case study updated successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update case study", variant: "destructive" });
+    },
+  });
+
+  const deleteCaseStudy = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/case-studies/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete case study");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/case-studies/all"] });
+      toast({ title: "Case study deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete case study", variant: "destructive" });
+    },
+  });
+
+  // Hero form helpers
   const handleHeroSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -375,6 +520,7 @@ export default function AdminDashboard() {
     setImagePreview("");
   };
 
+  // Contact form helpers
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -386,6 +532,7 @@ export default function AdminDashboard() {
     updateContactMutation.mutate(content);
   };
 
+  // Social form helpers
   const handleSocialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -398,21 +545,46 @@ export default function AdminDashboard() {
     updateSocialMutation.mutate(content);
   };
 
+  // Portfolio form helpers
+  const resetPortfolioForm = () => {
+    setPortfolioForm({
+      title: "",
+      description: "",
+      imageUrl: "",
+      projectUrl: "",
+      tags: "",
+      category: "",
+      featured: false,
+    });
+  };
+
+  const handlePortfolioEdit = (item: PortfolioItem) => {
+    setEditingPortfolioItem(item);
+    setPortfolioForm({
+      title: item.title,
+      description: item.description || "",
+      imageUrl: item.imageUrl,
+      projectUrl: item.projectUrl || "",
+      tags: item.tags?.join(", ") || "",
+      category: item.category || "",
+      featured: item.featured || false,
+    });
+    setIsPortfolioDialogOpen(true);
+  };
+
   const handlePortfolioSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const portfolioData = {
-      title: formData.get("title"),
-      description: formData.get("description"),
-      imageUrl: portfolioImagePreview || formData.get("imageUrl"),
-      projectUrl: formData.get("projectUrl"),
-      category: formData.get("category"),
-      tags: formData.get("tags") ? (formData.get("tags") as string).split(",").map(tag => tag.trim()) : [],
-      featured: formData.get("featured") === "on",
+
+    const data = {
+      ...portfolioForm,
+      tags: portfolioForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
     };
-    createPortfolioMutation.mutate(portfolioData);
-    (e.target as HTMLFormElement).reset();
-    setPortfolioImagePreview("");
+
+    if (editingPortfolioItem) {
+      updatePortfolioItem.mutate({ id: editingPortfolioItem.id, data });
+    } else {
+      createPortfolioItem.mutate(data);
+    }
   };
 
   const handlePortfolioImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -438,13 +610,63 @@ export default function AdminDashboard() {
     setPortfolioImagePreview("");
   };
 
+  // Case Study form helpers
+  const resetCaseStudyForm = () => {
+    setCaseStudyForm({
+      slug: "",
+      title: "",
+      subtitle: "",
+      description: "",
+      content: "",
+      imageUrl: "",
+      duration: "",
+      category: "",
+      tags: "",
+      featured: false,
+      published: false,
+    });
+  };
+
+  const handleCaseStudyEdit = (caseStudy: CaseStudy) => {
+    setEditingCaseStudy(caseStudy);
+    setCaseStudyForm({
+      slug: caseStudy.slug,
+      title: caseStudy.title,
+      subtitle: caseStudy.subtitle || "",
+      description: caseStudy.description || "",
+      content: caseStudy.content || "",
+      imageUrl: caseStudy.imageUrl || "",
+      duration: caseStudy.duration || "",
+      category: caseStudy.category || "",
+      tags: caseStudy.tags?.join(", ") || "",
+      featured: caseStudy.featured || false,
+      published: caseStudy.published || false,
+    });
+    setIsCaseStudyDialogOpen(true);
+  };
+
+  const handleCaseStudySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const data = {
+      ...caseStudyForm,
+      tags: caseStudyForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
+    };
+
+    if (editingCaseStudy) {
+      updateCaseStudy.mutate({ id: editingCaseStudy.id, data });
+    } else {
+      createCaseStudy.mutate(data);
+    }
+  };
+
   const handlePortfolioUpdate = (id: number, updates: any) => {
-    updatePortfolioMutation.mutate({ id, data: updates });
+    updatePortfolioItem.mutate({ id, data: updates });
   };
 
   const handlePortfolioDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this portfolio item?")) {
-      deletePortfolioMutation.mutate(id);
+      deletePortfolioItem.mutate(id);
     }
   };
 
@@ -553,6 +775,19 @@ export default function AdminDashboard() {
               <span>Portfolio</span>
             </button>
 
+            {/* Case Studies Tab */}
+            <button
+              onClick={() => setActiveSection("case-studies")}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                activeSection === "case-studies" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-contrast hover:bg-accent/10"
+              }`}
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Case Studies</span>
+            </button>
+
             <div className="border-t border-border my-4"></div>
 
             <button
@@ -587,12 +822,14 @@ export default function AdminDashboard() {
               {activeSection === "contact" && "Contact Information"}
               {activeSection === "social" && "Social Media Links"}
               {activeSection === "portfolio" && "Portfolio Management"}
+              {activeSection === "case-studies" && "Case Studies Management"}
             </h1>
             <p className="text-contrast-secondary mt-2">
               {activeSection === "hero" && "Manage your personal information and skills"}
               {activeSection === "contact" && "Update your contact details"}
               {activeSection === "social" && "Configure your social media presence"}
               {activeSection === "portfolio" && "Manage your portfolio items and featured work"}
+              {activeSection === "case-studies" && "Manage your case studies for UI/UX and graphics design"}
             </p>
           </div>
 
@@ -643,7 +880,7 @@ export default function AdminDashboard() {
                       </Button>
                     )}
                   </div>
-                  
+
                   {imagePreview && (
                     <div className="relative inline-block">
                       <img
@@ -664,7 +901,7 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
-              
+
               <div>
                 <Label>Skills</Label>
                 <div className="space-y-2">
@@ -739,7 +976,7 @@ export default function AdminDashboard() {
                 <CardTitle>Contact Information</CardTitle>
               </CardHeader>
               <CardContent>
-            <form onSubmit={handleContactSubmit} className="space-y-4">
+            <form onSubmit{handleContactSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="contact-email">Email</Label>
                 <Input
@@ -889,7 +1126,7 @@ export default function AdminDashboard() {
                             </Button>
                           )}
                         </div>
-                        
+
                         {portfolioImagePreview && (
                           <div className="relative inline-block">
                             <img
@@ -1035,6 +1272,224 @@ export default function AdminDashboard() {
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeSection === "case-studies" && (
+            <div className="space-y-6">
+              {/* Add New Case Study */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add New Case Study</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCaseStudySubmit} className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="case-study-title">Title</Label>
+                        <Input
+                          id="case-study-title"
+                          name="title"
+                          value={caseStudyForm.title}
+                          onChange={(e) => setCaseStudyForm({ ...caseStudyForm, title: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="case-study-slug">Slug</Label>
+                        <Input
+                          id="case-study-slug"
+                          name="slug"
+                          value={caseStudyForm.slug}
+                          onChange={(e) => setCaseStudyForm({ ...caseStudyForm, slug: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="case-study-subtitle">Subtitle</Label>
+                      <Input
+                        id="case-study-subtitle"
+                        name="subtitle"
+                        value={caseStudyForm.subtitle}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, subtitle: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="case-study-description">Description</Label>
+                      <Textarea
+                        id="case-study-description"
+                        name="description"
+                        value={caseStudyForm.description}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, description: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="case-study-content">Content</Label>
+                      <Textarea
+                        id="case-study-content"
+                        name="content"
+                        value={caseStudyForm.content}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, content: e.target.value })}
+                        rows={6}
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="case-study-category">Category</Label>
+                        <Input
+                          id="case-study-category"
+                          name="category"
+                          value={caseStudyForm.category}
+                          onChange={(e) => setCaseStudyForm({ ...caseStudyForm, category: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="case-study-duration">Duration</Label>
+                        <Input
+                          id="case-study-duration"
+                          name="duration"
+                          value={caseStudyForm.duration}
+                          onChange={(e) => setCaseStudyForm({ ...caseStudyForm, duration: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="case-study-imageUrl">Image URL</Label>
+                      <Input
+                        id="case-study-imageUrl"
+                        name="imageUrl"
+                        value={caseStudyForm.imageUrl}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, imageUrl: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="case-study-tags">Tags (comma-separated)</Label>
+                      <Input
+                        id="case-study-tags"
+                        name="tags"
+                        value={caseStudyForm.tags}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, tags: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="case-study-featured"
+                        name="featured"
+                        checked={caseStudyForm.featured}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, featured: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="case-study-featured">Featured Item</Label>
+                      <input
+                        type="checkbox"
+                        id="case-study-published"
+                        name="published"
+                        checked={caseStudyForm.published}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, published: e.target.checked })}
+                        className="rounded"
+                      />
+                      <Label htmlFor="case-study-published">Published</Label>
+                    </div>
+                    <Button type="submit" disabled={createCaseStudy.isPending}>
+                      {createCaseStudy.isPending ? "Creating..." : "Create Case Study"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Case Studies List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Case Studies ({caseStudies.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {caseStudiesLoading ? (
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, index) => (
+                        <div key={index} className="flex items-center space-x-4">
+                          <Skeleton className="h-16 w-16 rounded" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : caseStudies.length === 0 ? (
+                    <div className="text-center py-8 text-contrast-secondary">
+                      <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No case studies yet. Add your first case study above!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {caseStudies.map((item: any, index: number) => (
+                        <div key={`admin-case-study-${item.id}-${index}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="h-16 w-16 object-cover rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-semibold text-contrast flex items-center gap-2">
+                                  {item.title}
+                                  {item.featured && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      <Star className="h-3 w-3 mr-1" />
+                                      Featured
+                                    </Badge>
+                                  )}
+                                  {item.published && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Published
+                                    </Badge>
+                                  )}
+                                </h3>
+                                <p className="text-sm text-contrast-secondary">{item.description}</p>
+                                {item.category && (
+                                  <Badge variant="outline" className="mt-1 text-xs">
+                                    {item.category}
+                                  </Badge>
+                                )}
+                                {item.tags && item.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {item.tags.map((tag: string, index: number) => (
+                                      <Badge key={index} variant="secondary" className="text-xs">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleCaseStudyUpdate(item.id, { featured: !item.featured })}
+                                >
+                                  <Star className={`h-4 w-4 ${item.featured ? "fill-current" : ""}`} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleCaseStudyDelete(item.id)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                               </div>
                             </div>
                           </div>
