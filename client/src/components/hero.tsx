@@ -223,7 +223,7 @@ export default function Hero() {
               </Button>
               
               {/* Resume Download Button */}
-              {miscContent?.resumeUrl && miscContent.resumeUrl.trim() !== '' && (
+              {console.log('Hero miscContent:', miscContent) || miscContent?.resumeUrl && miscContent.resumeUrl.trim() !== '' && (
                 <Button
                   onClick={handleResumeDownload}
                   variant="outline"

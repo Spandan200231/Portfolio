@@ -2083,6 +2083,7 @@ export default function AdminDashboard() {
 
                   <div>
                     <Label>Resume/CV Upload</Label>
+                    {console.log('Admin miscData:', miscData)}
                     <div className="space-y-4">
                       <div className="flex items-center space-x-4">
                         <Input
@@ -2104,7 +2105,7 @@ export default function AdminDashboard() {
                         )}
                       </div>
 
-                      {miscData?.content?.resumeUrl && miscData.content.resumeUrl.trim() !== '' && (
+                      {(miscData?.content?.resumeUrl && miscData.content.resumeUrl.trim() !== '') && (
                         <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
                           <FileText className="h-5 w-5 text-green-600" />
                           <div className="flex-1">
@@ -2127,11 +2128,13 @@ export default function AdminDashboard() {
                         </div>
                       )}
 
-                      {resumeFileName && (
+                      {(resumeFileName || (miscData?.content?.resumeUrl && !resumeFileName)) && (
                         <div className="relative inline-block">
                           <div className="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-950/20 rounded border">
                             <FileText className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm text-blue-800 dark:text-blue-300">{resumeFileName}</span>
+                            <span className="text-sm text-blue-800 dark:text-blue-300">
+                              {resumeFileName || (miscData?.content?.resumeUrl ? miscData.content.resumeUrl.split('/').pop() : 'Resume uploaded')}
+                            </span>
                             <Button
                               type="button"
                               variant="ghost"
