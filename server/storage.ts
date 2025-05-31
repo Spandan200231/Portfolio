@@ -28,7 +28,11 @@ async function connectToMongoDB() {
 
   try {
     // Use environment variable for MongoDB URI
-    const mongoUri = process.env.MONGODB_URI || "mongodb+srv://portfolioUser:Spandan200231@cluster0.lscdfht.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      throw new Error("MONGODB_URI environment variable is required");
+    }
 
     mongoClient = new MongoClient(mongoUri);
     await mongoClient.connect();

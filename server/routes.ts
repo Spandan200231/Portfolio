@@ -12,8 +12,8 @@ import fs from "fs";
 import { insertContactMessageSchema, insertCaseStudySchema, insertSiteContentSchema, insertPortfolioItemSchema } from "@shared/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-const ADMIN_EMAIL = "spandan.majumder0231@gmail.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Spandan@200231";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "spandan.majumder0231@gmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // Configure multer for file uploads
 const upload = multer({
@@ -37,6 +37,9 @@ const upload = multer({
 // Validate required environment variables
 if (!ADMIN_PASSWORD) {
   throw new Error("ADMIN_PASSWORD environment variable is required");
+}
+if (!ADMIN_EMAIL) {
+  throw new Error("ADMIN_EMAIL environment variable is required");
 }
 
 // Email transporter configuration
