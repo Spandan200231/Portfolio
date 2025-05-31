@@ -430,10 +430,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/contact/messages/:id/read", authenticateToken, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const success = await storage.markMessageAsRead(id);
-
-      if (!success) {
+      
+      // First check if message exists
+      const message = await storage.getContactMessage(id);
+      if (!message) {
         return res.status(404).json({ message: "Message not found" });
+      }
+
+      // If already read, return success
+      if (message.read) {
+        return res.json({ message: "Message already marked as read" });
+      }
+
+      const success = await storage.markMessageAsRead(id);
+      if (!success) {
+        return res.status(500).json({ message: "Failed to update message" });
       }
 
       res.json({ message: "Message marked as read" });
