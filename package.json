@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && tsc --noEmit false --outDir dist server/index.ts",
+    "build": "vite build",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "npm run build && npm start",
     "check": "tsc",
