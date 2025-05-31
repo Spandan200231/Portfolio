@@ -1,0 +1,12 @@
+
+node_modules
+.env
+*.log
+.git
+uploads/*
+!uploads/.gitkeep
+server
+client/src
+*.md
+.replit
+replit.nix
