@@ -134,6 +134,50 @@ export class MongoStorage implements IStorage {
 
   constructor() {
     this.initializeDefaultData();
+    this.initializeCounters();
+  }
+
+  private async initializeCounters() {
+    try {
+      const db = await connectToMongoDB();
+
+      // Initialize counters based on existing data
+      const lastUser = await db.collection("users").findOne({}, { sort: { id: -1 } });
+      if (lastUser) {
+        this.currentUserId = lastUser.id + 1;
+      }
+
+      const lastPortfolio = await db.collection("portfolioItems").findOne({}, { sort: { id: -1 } });
+      if (lastPortfolio) {
+        this.currentPortfolioId = lastPortfolio.id + 1;
+      }
+
+      const lastCaseStudy = await db.collection("caseStudies").findOne({}, { sort: { id: -1 } });
+      if (lastCaseStudy) {
+        this.currentCaseStudyId = lastCaseStudy.id + 1;
+      }
+
+      const lastSiteContent = await db.collection("siteContent").findOne({}, { sort: { id: -1 } });
+      if (lastSiteContent) {
+        this.currentSiteContentId = lastSiteContent.id + 1;
+      }
+
+      const lastMessage = await db.collection("contactMessages").findOne({}, { sort: { id: -1 } });
+      if (lastMessage) {
+        this.currentMessageId = lastMessage.id + 1;
+      }
+
+      console.log("📊 ID counters initialized:", {
+        userId: this.currentUserId,
+        portfolioId: this.currentPortfolioId,
+        caseStudyId: this.currentCaseStudyId,
+        siteContentId: this.currentSiteContentId,
+        messageId: this.currentMessageId
+      });
+
+    } catch (error) {
+      console.error("❌ Error initializing counters:", error);
+    }
   }
 
   private async initializeDefaultData() {
@@ -591,11 +635,20 @@ export class MongoStorage implements IStorage {
   async markMessageAsRead(id: number): Promise<boolean> {
     try {
       const db = await connectToMongoDB();
+      
+      // First check if message exists
+      const message = await db.collection("contactMessages").findOne({ id });
+      if (!message) {
+        console.error(`Message with id ${id} not found`);
+        return false;
+      }
+
       const result = await db.collection("contactMessages").updateOne(
         { id },
         { $set: { read: true } }
       );
 
+      console.log(`Mark as read result for message ${id}:`, result);
       return result.modifiedCount > 0;
     } catch (error) {
       console.error("Error marking message as read:", error);
