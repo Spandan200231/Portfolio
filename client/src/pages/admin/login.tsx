@@ -144,13 +144,7 @@ export default function AdminLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-contrast-secondary">
-            <p>Demo credentials:</p>
-            <p className="font-mono text-xs mt-1">
-              spandan.majumder0231@gmail.com / Spandan@200231
-            </p>
-          </div>
-        </CardContent>
+          </CardContent>
       </Card>
     </div>
   );
