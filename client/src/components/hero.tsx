@@ -97,14 +97,21 @@ export default function Hero() {
   };
 
   const handleResumeDownload = () => {
-    if (miscData?.content?.resumeUrl) {
-      // Create a temporary link element to trigger download
-      const link = document.createElement('a');
-      link.href = miscData.content.resumeUrl;
-      link.download = miscData.content.resumeUrl.split('/').pop() || 'resume.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (miscContent.resumeUrl && miscContent.resumeUrl.trim() !== '') {
+      try {
+        // Create a temporary link element to trigger download
+        const link = document.createElement('a');
+        link.href = miscContent.resumeUrl;
+        link.download = miscContent.resumeUrl.split('/').pop() || 'resume.pdf';
+        link.target = '_blank'; // Open in new tab as fallback
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Error downloading resume:', error);
+        // Fallback: open in new window
+        window.open(miscContent.resumeUrl, '_blank');
+      }
     }
   };
 
@@ -216,7 +223,7 @@ export default function Hero() {
               </Button>
               
               {/* Resume Download Button */}
-              {miscContent.resumeUrl && (
+              {miscContent.resumeUrl && miscContent.resumeUrl.trim() !== '' && (
                 <Button
                   onClick={handleResumeDownload}
                   variant="outline"
