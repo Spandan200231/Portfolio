@@ -1,10 +1,19 @@
 // Load environment variables FIRST before any other imports
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+
+// Ensure dotenv loads from the correct path
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
+
+// Debug environment variables
+console.log("Environment check:");
+console.log("MONGODB_URI:", process.env.MONGODB_URI ? "✅ Set" : "❌ Missing");
+console.log("ADMIN_PASSWORD:", process.env.ADMIN_PASSWORD ? "✅ Set" : "❌ Missing");
+console.log("ADMIN_EMAIL:", process.env.ADMIN_EMAIL ? "✅ Set" : "❌ Missing");
 
 // Simple log function
 const log = (message: string) => {

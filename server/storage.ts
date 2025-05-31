@@ -1,3 +1,8 @@
+// Ensure environment variables are loaded
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
 import { MongoClient, Db, Collection, ObjectId } from "mongodb";
 import { 
   users, 
@@ -27,10 +32,16 @@ async function connectToMongoDB() {
   }
 
   try {
+    // Debug environment variable loading
+    console.log("🔍 Checking environment variables in storage.ts:");
+    console.log("MONGODB_URI:", process.env.MONGODB_URI ? "✅ Found" : "❌ Not found");
+    
     // Use environment variable for MongoDB URI
     const mongoUri = process.env.MONGODB_URI;
     
     if (!mongoUri) {
+      console.error("❌ MONGODB_URI is undefined or empty");
+      console.log("Available env vars:", Object.keys(process.env).filter(key => key.includes('MONGO')));
       throw new Error("MONGODB_URI environment variable is required");
     }
 
