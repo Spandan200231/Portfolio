@@ -1493,8 +1493,8 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {portfolioItems.map((item: any) => (
-                        <div key={`admin-portfolio-${item.id}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                      {portfolioItems.map((item: any, index: number) => (
+                        <div key={`admin-portfolio-${item.id}-${index}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
                           <img
                             src={item.imageUrl}
                             alt={item.title}
@@ -1760,8 +1760,8 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {caseStudies.map((item: any) => (
-                        <div key={`admin-case-study-${item.id}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                      {caseStudies.map((item: any, index: number) => (
+                        <div key={`admin-case-study-${item.id}-${index}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
                           <img
                             src={item.imageUrl && item.imageUrl.trim() !== "" 
                               ? item.imageUrl 
