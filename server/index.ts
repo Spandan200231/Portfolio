@@ -1,10 +1,10 @@
-import express, { type Request, Response, NextFunction } from "express";
+// Load environment variables FIRST before any other imports
 import dotenv from "dotenv";
+dotenv.config();
+
+import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
-
-// Load environment variables
-dotenv.config();
 
 // Simple log function
 const log = (message: string) => {
