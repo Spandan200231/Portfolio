@@ -10,3 +10,15 @@ client/src
 *.md
 .replit
 replit.nix
+node_modules
+.env
+.git
+.replit
+dist/public
+uploads
+attached_assets
+client/src
+server/*.ts
+!server/index.ts
+*.md
+.gitignore

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build",
-    "vercel-build": "vite build",
+    "vercel-build": "vite build && tsc server/index.ts --outDir dist --target es2020 --module commonjs --esModuleInterop",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "npm run build && npm start",
     "check": "tsc",
