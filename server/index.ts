@@ -66,8 +66,9 @@ app.use((req, res, next) => {
   }
 
   // For Vercel, export the app instead of starting a server
-  if (process.env.VERCEL) {
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
     module.exports = app;
+    module.exports.default = app;
   } else {
     // ALWAYS serve the app on port 5000
     // this serves both the API and the client.
