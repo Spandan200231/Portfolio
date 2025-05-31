@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build",
-    "vercel-build": "vite build && tsc server/vercel.ts server/routes.ts server/storage.ts shared/schema.ts --outDir dist --target es2020 --module commonjs --esModuleInterop --allowSyntheticDefaultImports --skipLibCheck --moduleResolution node",
+    "vercel-build": "vite build && esbuild server/vercel.ts --bundle --platform=node --target=node18 --outfile=dist/vercel.js --external:sharp --external:canvas",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "npm run build && npm start",
     "check": "tsc",
