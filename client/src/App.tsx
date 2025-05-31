@@ -1,44 +1,28 @@
-import { Route, Switch, useLocation } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { ThemeProvider } from "./components/theme-provider";
-import { Toaster } from "./components/ui/toaster";
-import { getAuthToken } from "./lib/auth";
-import { queryClient } from "./lib/queryClient";
-import Home from "./pages/home";
-import CaseStudy from "./pages/case-study";
-import NotFound from "./pages/not-found";
-import AdminLogin from "./pages/admin/login";
-import AdminDashboard from "./pages/admin/dashboard";
+import { Router, Route, Switch } from "wouter";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
+import Home from "@/pages/home";
+import CaseStudy from "@/pages/case-study";
+import AdminLogin from "@/pages/admin/login";
+import AdminDashboard from "@/pages/admin/dashboard";
+import NotFound from "@/pages/not-found";
 
-function AdminRoute({ component: Component }: { component: any }) {
-  const [, setLocation] = useLocation();
-
-  useEffect(() => {
-    const token = getAuthToken();
-    if (!token) {
-      setLocation("/admin");
-    }
-  }, [setLocation]);
-
-  return <Component />;
-}
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="portfolio-theme">
-        <div className="min-h-screen bg-background font-sans antialiased">
+      <ThemeProvider defaultTheme="light" storageKey="portfolio-theme">
+        <Router>
           <Switch>
             <Route path="/" component={Home} />
-            <Route path="/case-studies/:slug" component={CaseStudy} />
+            <Route path="/case-study/:id" component={CaseStudy} />
             <Route path="/admin" component={AdminLogin} />
-            <Route path="/admin/dashboard">
-              <AdminRoute component={AdminDashboard} />
-            </Route>
+            <Route path="/admin/dashboard" component={AdminDashboard} />
             <Route component={NotFound} />
           </Switch>
-        </div>
+        </Router>
         <Toaster />
       </ThemeProvider>
     </QueryClientProvider>

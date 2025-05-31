@@ -8,19 +8,25 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic } from "./vite";
-
-// Simple log function
-const log = (message: string) => {
-  const formattedTime = new Date().toISOString();
-  console.log(`[${formattedTime}] ${message}`);
-};
 
 const app = express();
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// CORS headers for Vercel
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Health check endpoint
 app.get("/api/health", (req: Request, res: Response) => {
@@ -29,18 +35,6 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 // Register API routes
 registerRoutes(app);
-
-// For Vercel, serve static files differently
-if (process.env.VERCEL) {
-  // In Vercel, static files are handled by the platform
-  // Just serve API routes
-  app.get('*', (req, res) => {
-    res.status(404).json({ error: 'Not found' });
-  });
-} else {
-  // In development, serve Vite dev server or static files
-  serveStatic(app);
-}
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

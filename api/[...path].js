@@ -9,6 +9,6 @@ try {
 } catch (error) {
   console.error('Failed to load Express app:', error);
   module.exports = (req, res) => {
-    res.status(500).json({ error: 'Failed to load application' });
+    res.status(500).json({ error: 'Failed to load application', details: error.message });
   };
 }
