@@ -97,7 +97,7 @@ export default function Hero() {
   };
 
   const handleResumeDownload = () => {
-    if (miscContent.resumeUrl && miscContent.resumeUrl.trim() !== '') {
+    if (miscContent?.resumeUrl && miscContent.resumeUrl.trim() !== '') {
       try {
         // Create a temporary link element to trigger download
         const link = document.createElement('a');
@@ -223,7 +223,7 @@ export default function Hero() {
               </Button>
               
               {/* Resume Download Button */}
-              {miscContent.resumeUrl && miscContent.resumeUrl.trim() !== '' && (
+              {miscContent?.resumeUrl && miscContent.resumeUrl.trim() !== '' && (
                 <Button
                   onClick={handleResumeDownload}
                   variant="outline"
