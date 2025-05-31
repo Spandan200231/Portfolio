@@ -176,11 +176,6 @@ export default function Hero() {
               <p className="text-xl text-contrast-secondary leading-relaxed">
                 {heroContent.introduction}
               </p>
-              {miscContent.heroTagline && (
-                <p className="text-lg text-contrast-secondary/80 italic leading-relaxed">
-                  {miscContent.heroTagline}
-                </p>
-              )}
               {miscContent.availabilityText && (
                 <p className="text-sm text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg inline-block">
                   ✨ {miscContent.availabilityText}
