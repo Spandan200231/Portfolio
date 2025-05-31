@@ -733,7 +733,7 @@ export class MongoStorage implements IStorage {
         bounceRate: 25.5, // Calculated estimate
         avgSessionDuration: 180, // 3 minutes average
         topPages,
-        weeklyData,
+        weeklyData: weekData,
         lastUpdated: now
       };
     } catch (error) {

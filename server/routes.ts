@@ -453,6 +453,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/contact/messages/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Get message details first to delete associated files
+      const message = await storage.getContactMessage(id);
+      if (!message) {
+        return res.status(404).json({ message: "Message not found" });
+      }
+
+      // Delete associated files if they exist
+      if (message.attachments && message.attachments.length > 0) {
+        for (const filename of message.attachments) {
+          const filepath = path.join("uploads", filename);
+          if (fs.existsSync(filepath)) {
+            try {
+              fs.unlinkSync(filepath);
+              console.log(`Deleted file: ${filename}`);
+            } catch (fileError) {
+              console.error(`Failed to delete file ${filename}:`, fileError);
+            }
+          }
+        }
+      }
+
+      const success = await storage.deleteContactMessage(id);
+      if (!success) {
+        return res.status(500).json({ message: "Failed to delete message" });
+      }
+
+      res.json({ message: "Message deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      res.status(500).json({ message: "Failed to delete message" });
+    }
+  });
+
   // Analytics tracking middleware
   app.use((req, res, next) => {
     // Track page views for non-API routes

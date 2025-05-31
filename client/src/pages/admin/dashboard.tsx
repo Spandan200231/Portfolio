@@ -461,6 +461,28 @@ export default function AdminDashboard() {
     },
   });
 
+  // Delete message mutation
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (messageId: number) => {
+      const response = await fetch(`/api/contact/messages/${messageId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to delete message");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contact/messages"] });
+      toast({ title: "Message deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete message", variant: "destructive" });
+    },
+  });
+
   // Portfolio mutations
   const createPortfolioItem = useMutation({
     mutationFn: async (data: InsertPortfolioItem) => {
@@ -1471,8 +1493,8 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {portfolioItems.map((item: any, index: number) => (
-                        <div key={`admin-portfolio-${item.id}-${index}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                      {portfolioItems.map((item: any) => (
+                        <div key={`admin-portfolio-${item.id}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
                           <img
                             src={item.imageUrl}
                             alt={item.title}
@@ -1738,8 +1760,8 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {caseStudies.map((item: any, index: number) => (
-                        <div key={`admin-case-study-${item.id}-${item.slug}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
+                      {caseStudies.map((item: any) => (
+                        <div key={`admin-case-study-${item.id}`} className="flex items-start space-x-4 p-4 border border-border rounded-lg">
                           <img
                             src={item.imageUrl && item.imageUrl.trim() !== "" 
                               ? item.imageUrl 
@@ -1927,17 +1949,33 @@ export default function AdminDashboard() {
                               <span className="text-xs text-contrast-secondary">
                                 {new Date(message.createdAt).toLocaleString()}
                               </span>
-                              {!message.read && (
+                              <div className="flex space-x-1">
+                                {!message.read && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => markAsReadMutation.mutate(message.id)}
+                                    disabled={markAsReadMutation.isPending}
+                                  >
+                                    <Eye className="h-3 w-3 mr-1" />
+                                    Mark Read
+                                  </Button>
+                                )}
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => markAsReadMutation.mutate(message.id)}
-                                  disabled={markAsReadMutation.isPending}
+                                  onClick={() => {
+                                    if (confirm("Are you sure you want to delete this message? This action cannot be undone.")) {
+                                      deleteMessageMutation.mutate(message.id);
+                                    }
+                                  }}
+                                  disabled={deleteMessageMutation.isPending}
+                                  className="text-destructive hover:text-destructive"
                                 >
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  Mark Read
+                                  <Trash2 className="h-3 w-3 mr-1" />
+                                  Delete
                                 </Button>
-                              )}
+                              </div>
                             </div>
                           </div>
                           
