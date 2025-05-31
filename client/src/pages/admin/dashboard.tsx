@@ -697,6 +697,8 @@ export default function AdminDashboard() {
       footerCopyright: formData.get("footerCopyright"),
       caseStudiesDescription: formData.get("caseStudiesDescription"),
       portfolioDescription: formData.get("portfolioDescription"),
+      // Preserve existing resumeUrl
+      resumeUrl: miscData?.content?.resumeUrl || "",
     };
     updateMiscMutation.mutate(content);
   };
@@ -2083,7 +2085,6 @@ export default function AdminDashboard() {
 
                   <div>
                     <Label>Resume/CV Upload</Label>
-                    {console.log('Admin miscData:', miscData)}
                     <div className="space-y-4">
                       <div className="flex items-center space-x-4">
                         <Input
@@ -2105,7 +2106,7 @@ export default function AdminDashboard() {
                         )}
                       </div>
 
-                      {(miscData?.content?.resumeUrl && miscData.content.resumeUrl.trim() !== '') && (
+                      {miscData?.content?.resumeUrl && miscData.content.resumeUrl.trim() !== '' && (
                         <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
                           <FileText className="h-5 w-5 text-green-600" />
                           <div className="flex-1">

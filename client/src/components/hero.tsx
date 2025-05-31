@@ -222,18 +222,17 @@ export default function Hero() {
                 Get In Touch
               </Button>
               
-              {/* Resume Download Button */}
-              {console.log('Hero miscContent:', miscContent) || miscContent?.resumeUrl && miscContent.resumeUrl.trim() !== '' && (
-                <Button
-                  onClick={handleResumeDownload}
-                  variant="outline"
-                  size="lg"
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Resume
-                </Button>
-              )}
+              {/* Resume Download Button - Always visible */}
+              <Button
+                onClick={handleResumeDownload}
+                variant="outline"
+                size="lg"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
+                disabled={!miscContent?.resumeUrl || miscContent.resumeUrl.trim() === ''}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {miscContent?.resumeUrl && miscContent.resumeUrl.trim() !== '' ? 'Download Resume' : 'Resume Coming Soon'}
+              </Button>
 
               {/* Social Links */}
               <div className="flex space-x-3">
