@@ -978,7 +978,7 @@ export default function AdminDashboard() {
             >
               <User className="h-4 w-4" />
               <span>Hero Section</span>
-            </button>
+                        </button>
 
             <button
               onClick={() => setActiveSection("contact")}
@@ -1874,7 +1874,8 @@ export default function AdminDashboard() {
                 </Card>
                 <Card>
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+                    <div`text
+ className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-contrast-secondary">Read</p>
                         <p className="text-2xl font-bold text-contrast">
@@ -1917,9 +1918,9 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {contactMessages.map((message: any) => (
+                      {contactMessages.map((message: any, index: number) => (
                         <div 
-                          key={message.id} 
+                          key={`message-${message.id}-${index}`}
                           className={`p-6 border rounded-lg transition-colors ${
                             message.read 
                               ? "border-border bg-card" 
@@ -1978,13 +1979,13 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-3">
                             <div>
                               <p className="text-sm font-medium text-contrast-secondary mb-1">Subject:</p>
                               <p className="text-contrast">{message.subject}</p>
                             </div>
-                            
+
                             <div>
                               <p className="text-sm font-medium text-contrast-secondary mb-1">Message:</p>
                               <div className="bg-muted/50 p-3 rounded border">
@@ -2084,7 +2085,7 @@ export default function AdminDashboard() {
                     <p className="text-sm text-contrast-secondary mt-1">Displayed in the hero/contact section</p>
                   </div>
 
-                  
+
 
                   <div>
                     <Label htmlFor="footerCopyright">Footer Copyright Text</Label>
