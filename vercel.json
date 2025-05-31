@@ -4,18 +4,18 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
   "functions": {
-    "dist/index.js": {
+    "dist/vercel.js": {
       "maxDuration": 30
     }
   },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/dist/index.js"
+      "dest": "/dist/vercel.js"
     },
     {
       "src": "/uploads/(.*)",
-      "dest": "/dist/index.js"
+      "dest": "/dist/vercel.js"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
