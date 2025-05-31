@@ -13,7 +13,7 @@ import { insertContactMessageSchema, insertCaseStudySchema, insertSiteContentSch
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 const ADMIN_EMAIL = "spandan.majumder0231@gmail.com";
-const ADMIN_PASSWORD = "Spandan@200231";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Spandan@200231";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -33,6 +33,11 @@ const upload = multer({
     }
   },
 });
+
+// Validate required environment variables
+if (!ADMIN_PASSWORD) {
+  throw new Error("ADMIN_PASSWORD environment variable is required");
+}
 
 // Email transporter configuration
 const transporter = nodemailer.createTransport({
@@ -430,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/contact/messages/:id/read", authenticateToken, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       // First check if message exists
       const message = await storage.getContactMessage(id);
       if (!message) {
@@ -456,7 +461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/contact/messages/:id", authenticateToken, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       // Get message details first to delete associated files
       const message = await storage.getContactMessage(id);
       if (!message) {
