@@ -1874,8 +1874,7 @@ export default function AdminDashboard() {
                 </Card>
                 <Card>
                   <CardContent className="p-6">
-                    <div`text
- className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-contrast-secondary">Read</p>
                         <p className="text-2xl font-bold text-contrast">
